@@ -63,8 +63,8 @@ public class UserController extends BaseApiRestController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<?> updateUser(@PathVariable("id") Long id, @RequestBody UserRequestDto userRequestDto) {
-        UserResponseDto user = userService.updateUser(id, userRequestDto);
-        return success(user);
+        userService.updateUser(id, userRequestDto);
+        return successMessage("User updated successfully");
     }
 
     /**

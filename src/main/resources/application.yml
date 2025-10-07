@@ -6,7 +6,7 @@ spring:
     name: monkey_dev
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/wecom
+    url: jdbc:postgresql://localhost:5432/db_dev
     username: mac_pg
     password: 12345678
     driver-class-name: org.postgresql.Driver
