@@ -22,7 +22,7 @@ public class UserMapper {
                 .username(userRequestDto.getUsername())
                 .email(userRequestDto.getEmail())
                 .password(userRequestDto.getPassword())
-                .isActive(true)
+                .active(true)
                 .build();
     }
 
@@ -39,7 +39,7 @@ public class UserMapper {
                 .fullName(user.getFullName())
                 .username(user.getUsername())
                 .email(user.getEmail())
-                .isActive(user.getIsActive() == null ? true : user.getIsActive())
+                .active(user.isActive())
                 .build();
     }
 }

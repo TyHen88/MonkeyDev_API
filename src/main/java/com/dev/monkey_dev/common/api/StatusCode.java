@@ -25,10 +25,14 @@ public enum StatusCode {
     SECURITY_CODE_ENCRYPTION_REQUIRED(40041, "Security code must be encrypted", 400),
     SECURITY_KEY_ENCRYPTION_REQUIRED(40042, "Security key must be encrypted", 400),
     INCORRECT_PASSWORD(40055, "Incorrect password", 400),
+    INACTIVE_USER(40056, "Inactive user", 400),
     INVALID_TOKEN(40051, "Invalid token", 400),
 
     // 401 Unauthorized
     UNAUTHORIZED(40100, "Unauthorized", 401),
+
+    // 403 Forbidden
+    FORBIDDEN(40300, "Forbidden", 403),
 
     // 409 Conflict
     USER_ID_ALREADY_EXISTS(40913, "User ID already exists", 409),

@@ -1,15 +1,42 @@
 server:
   port: 8080
-  
+
 spring:
   application:
-    name: monkey_dev
+    name: monkey-dev
+    group: ${APPLICATION_GROUP:dev}
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:1065879052327-njgaidr15era3c3a3siptr01ldg4142f.apps.googleusercontent.com}
+            client-secret: ${GOOGLE_CLIENT_SECRET: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}
+            scope:
+              - email
+              - profile
+            redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:8080/oauth2/callback/google}
+            authorization-grant-type: authorization_code
+            client-name: ${GOOGLE_CLIENT_NAME:Google}
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
+            user-name-attribute: id
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/db_dev
-    username: mac_pg
-    password: 12345678
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/db_dev}
+    username: ${DB_USERNAME:mac_pg}
+    password: ${DB_PASSWORD:12345678}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      pool-name: HikariCP
 
   jpa:
     hibernate:
@@ -18,15 +45,37 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
 
+  jackson:
+    serialization:
+      indent_output: true
+
+jwt:
+  secret: ${JWT_SECRET:mySecretKey}
+  issuer: ${JWT_ISSUER:monkey-dev}
+  expiration: 86400000 # 24 hours in milliseconds
+  expirationMs: 86400000 # 24 hours in milliseconds
+
+password:
+  encryption:
+    key: ${PASSWORD_ENCRYPTION_KEY:mykeyasdddds}
+
+oauth2:
+  authorized-redirect-uri: ${OAUTH2_REDIRECT_URI:http://localhost:3000/oauth2/redirect}
 
 springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
-    url: /v3/api-docs
   api-docs:
     path: /v3/api-docs
     enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    url: /v3/api-docs
+    enabled: true
+    display-request-duration: true
+    try-it-out-enabled: true
+    default-model-expand-depth: 2
   show-actuator: true
   cache:
     disabled: true
@@ -35,10 +84,24 @@ springdoc:
 
 logging:
   level:
-    root: info
-    org.hibernate: info
-    org.hibernate.SQL: debug
-    org.springframework.jdbc.core: trace
-    org.hibernate.orm.jdbc.bind: trace
-    com.dev.monkey_dev.logging: info
-    com.dev.monkey_dev.common: info
+    root: INFO
+    org.springframework.security: DEBUG
+    com.dev.monkey_dev: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+
+rsa:
+  public-key: ${RSA_PUBLIC_KEY:classpath:certs/public-key.pem}
+  private-key: ${RSA_PRIVATE_KEY:classpath:certs/private-key.pem}
+
+app:
+  oauth2:
+    authorized-redirect-url: ${OAUTH2_REDIRECT_URL:http://localhost:3000/oauth2/redirect}

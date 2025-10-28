@@ -16,7 +16,7 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 
     Optional<Users> findByEmailOrUsername(String email, String username);
 
-    @Query("SELECT new com.dev.monkey_dev.dto.response.UserResponseDto(u.id, u.fullName, u.username, u.email, u.isActive) FROM Users u WHERE u.isActive = :isActive")
+    @Query("SELECT new com.dev.monkey_dev.dto.response.UserResponseDto(u.id, u.fullName, u.username, u.email, u.active) FROM Users u WHERE u.active = :isActive")
     List<UserResponseDto> findAllUserIsActive(@Param("isActive") Boolean isActive);
 
 }

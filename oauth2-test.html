@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth2 Google Login Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+
+        .info-box p {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 5px;
+        }
+
+        .google-btn {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .google-btn:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .google-btn img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .result-box {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .result-box.success {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .result-box.error {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .result-box h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .result-box pre {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+
+        .links {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        .links a {
+            color: #667eea;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .status.success {
+            background: #28a745;
+            color: white;
+        }
+
+        .token-info {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            word-break: break-all;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔐 OAuth2 Google Login Test</h1>
+        <p class="subtitle">PlanPro API - OAuth2 Integration Testing</p>
+
+        <div class="info-box">
+            <p><strong>ℹ️ How it works:</strong></p>
+            <p>1. Click the Google login button below</p>
+            <p>2. Authorize the application with your Google account</p>
+            <p>3. You'll be redirected back with a JWT token</p>
+            <p>4. Use the token to make API requests</p>
+        </div>
+
+        <button class="google-btn" onclick="loginWithGoogle()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48">
+                <path fill="#FFC107"
+                    d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
+                <path fill="#FF3D00"
+                    d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
+                <path fill="#4CAF50"
+                    d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
+                <path fill="#1976D2"
+                    d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
+            </svg>
+            Continue with Google
+        </button>
+
+        <div id="result" class="result-box"></div>
+
+        <div class="links">
+            <strong>📚 Documentation:</strong>
+            <a href="file:///Users/henty/Documents/Coding/Ty2025/planpro_api/planpro/OAUTH2_INTEGRATION_GUIDE.md"
+                target="_blank">
+                📖 OAuth2 Integration Guide
+            </a>
+            <a href="http://localhost:8080/swagger-ui/index.html" target="_blank">
+                🔧 API Documentation (Swagger)
+            </a>
+            <a href="https://console.cloud.google.com/" target="_blank">
+                ☁️ Google Cloud Console
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8080';
+
+        function loginWithGoogle() {
+            // Redirect to Google OAuth2 authorization endpoint
+            window.location.href = `${API_BASE_URL}/oauth2/authorization/google`;
+        }
+
+        // Check if we're on the redirect page with a token
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            const error = urlParams.get('error');
+            const tokenType = urlParams.get('type') || 'Bearer';
+
+            if (token) {
+                showSuccess(token, tokenType);
+                // Clean URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else if (error) {
+                showError(error);
+                // Clean URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+
+        function showSuccess(token, tokenType) {
+            const resultBox = document.getElementById('result');
+            resultBox.className = 'result-box success';
+            resultBox.style.display = 'block';
+
+            // Decode JWT to show payload
+            const payload = decodeJWT(token);
+
+            resultBox.innerHTML = `
+                <h3>✅ Login Successful! <span class="status success">AUTHENTICATED</span></h3>
+                <p><strong>Token Type:</strong> ${tokenType}</p>
+                
+                <div class="token-info">
+                    <strong>Your JWT Token:</strong>
+                    <pre>${token}</pre>
+                    <button class="copy-btn" onclick="copyToClipboard('${token}')">📋 Copy Token</button>
+                </div>
+
+                ${payload ? `
+                <div style="margin-top: 15px;">
+                    <strong>Token Payload:</strong>
+                    <pre>${JSON.stringify(payload, null, 2)}</pre>
+                </div>
+                ` : ''}
+
+                <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 5px;">
+                    <strong>🧪 Test API Request:</strong>
+                    <pre style="margin-top: 10px;">curl -X GET ${API_BASE_URL}/api/wb/v1/users/me \\
+  -H "Authorization: Bearer ${token.substring(0, 30)}..."</pre>
+                    <button class="copy-btn" onclick="copyToClipboard('curl -X GET ${API_BASE_URL}/api/wb/v1/users/me -H \\'Authorization: Bearer ${token}\\'')">📋 Copy cURL Command</button>
+                </div>
+            `;
+        }
+
+        function showError(error) {
+            const resultBox = document.getElementById('result');
+            resultBox.className = 'result-box error';
+            resultBox.style.display = 'block';
+            resultBox.innerHTML = `
+                <h3>❌ Login Failed</h3>
+                <p><strong>Error:</strong> ${error}</p>
+                <button class="copy-btn" onclick="location.reload()">🔄 Try Again</button>
+            `;
+        }
+
+        function decodeJWT(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                console.error('Error decoding JWT:', e);
+                return null;
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ Copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('✅ Copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,4 +1,4 @@
-package com.dev.monkey_dev.service;
+package com.dev.monkey_dev.service.users;
 
 import java.util.List;
 

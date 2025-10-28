@@ -1,17 +1,19 @@
 package com.dev.monkey_dev.controller;
 
 import com.dev.monkey_dev.controller.base.BaseApiRestController;
-import com.dev.monkey_dev.service.IUserService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import com.dev.monkey_dev.dto.request.UserRequestDto;
 import com.dev.monkey_dev.dto.response.UserResponseDto;
+import com.dev.monkey_dev.service.users.IUserService;
+
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/wb/v1/user")
 @RequiredArgsConstructor
 @Tag(name = "User", description = "User API")
 public class UserController extends BaseApiRestController {

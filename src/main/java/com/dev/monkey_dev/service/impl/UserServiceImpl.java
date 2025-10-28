@@ -15,7 +15,7 @@ import com.dev.monkey_dev.dto.mapper.UserMapper;
 import com.dev.monkey_dev.dto.request.UserRequestDto;
 import com.dev.monkey_dev.dto.response.UserResponseDto;
 import com.dev.monkey_dev.exception.BusinessException;
-import com.dev.monkey_dev.service.IUserService;
+import com.dev.monkey_dev.service.users.IUserService;
 
 @Service
 @RequiredArgsConstructor
@@ -83,7 +83,7 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     public void deleteUser(Long id) {
         var user = userRepository.findById(id).orElseThrow(() -> new BusinessException(StatusCode.USER_NOT_FOUND));
-        user.setIsActive(false);
+        user.deactivate();
         userRepository.save(user);
     }
 
