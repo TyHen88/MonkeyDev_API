@@ -26,7 +26,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         this.jwtUtil = jwtUtil;
     }
 
-    @Value("${app.oauth2.authorized-redirect-url}")
+    @Value("${app.oauth2.authorized-redirect-url:http://localhost:3333/oauth2/redirect}")
     private String authorizedRedirectUrl;
 
     @Override

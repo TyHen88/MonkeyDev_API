@@ -21,13 +21,13 @@ public class UserAuthServiceImpl implements UserDetailsService {
     @Override
     @Transactional
     public SecurityUser loadUserByUsername(String username) {
-        Optional<Users> users = userRepository.findByUsername(username);
+        List<Users> users = userRepository.findByUsername(username);
 
-        if (!users.isPresent()) {
+        if (users.isEmpty()) {
             throw new UsernameNotFoundException("User not found with username: " + username);
         }
 
-        Users user = users.get();
+        Users user = users.get(0);
 
         return new SecurityUser(
                 user);

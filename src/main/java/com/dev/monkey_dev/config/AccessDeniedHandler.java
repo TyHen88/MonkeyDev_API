@@ -1,6 +1,7 @@
 package com.dev.monkey_dev.config;
 
 import com.dev.monkey_dev.common.api.ApiResponse;
+import com.dev.monkey_dev.common.api.ApiStatus;
 import com.dev.monkey_dev.common.api.StatusCode;
 import com.dev.monkey_dev.util.ObjectUtils;
 import jakarta.servlet.ServletException;
@@ -14,6 +15,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Component
 public class AccessDeniedHandler implements org.springframework.security.web.access.AccessDeniedHandler {
@@ -25,8 +28,9 @@ public class AccessDeniedHandler implements org.springframework.security.web.acc
             res.setStatusCode(HttpStatus.FORBIDDEN);
             res.getServletResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 
-            var apiResponse = ApiResponse.error(StatusCode.FORBIDDEN.getMessage(),
-                    StatusCode.FORBIDDEN.getHttpStatus());
+            ApiStatus apiStatus = new ApiStatus(StatusCode.FORBIDDEN);
+            var apiResponse = new ApiResponse<Object>(apiStatus.getMessage(), apiStatus.getCode(),
+                    LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), null);
             res.getBody().write(ObjectUtils.writeValueAsString(apiResponse).getBytes());
         }
     }

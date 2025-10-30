@@ -12,7 +12,7 @@ import com.dev.monkey_dev.dto.response.UserResponseDto;
 public interface UserRepository extends JpaRepository<Users, Long> {
     Optional<Users> findByEmail(String email);
 
-    Optional<Users> findByUsername(String username);
+    List<Users> findByUsername(String username);
 
     Optional<Users> findByEmailOrUsername(String email, String username);
 

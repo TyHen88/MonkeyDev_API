@@ -82,22 +82,21 @@ public class CustomOAuth2UserService {
      * Register a new user using oAuth2UserInfo and registrationId.
      */
     private Users registerNewUser(String registrationId, OAuth2UserInfo oAuth2UserInfo) {
+
         Users user = new Users();
         user.setAuthProvider(AuthProvider.valueOf(registrationId.toUpperCase()));
         user.setEmail(oAuth2UserInfo.getEmail());
+        user.setFullName(oAuth2UserInfo.getName());
 
-        // Split name into first and last name
-        String name = oAuth2UserInfo.getName();
-        if (oAuth2UserInfo instanceof GoogleOAuth2UserInfo googleUserInfo) {
-            user.setFullName(googleUserInfo.getGivenName() + " " + googleUserInfo.getFamilyName());
-            user.setUsername(googleUserInfo.getEmail().split("@")[0].toLowerCase());
-        } else if (name != null) {
-            String[] nameParts = name.split(" ", 2);
-            user.setFullName(nameParts[0] + " " + (nameParts.length > 1 ? nameParts[1] : ""));
-            user.setUsername(nameParts[0].toLowerCase());
-        }
-
+        user.setUsername(oAuth2UserInfo.getEmail().split("@")[0].toLowerCase());
+        user.setProfileImageUrl(oAuth2UserInfo.getImageUrl());
+        user.setRole(Roles.USER);
         user.activate();
+
+        // For OAuth2 users, we don't set a password as they authenticate through the
+        // provider
+        // The password field will be null, which is now allowed by the entity
+        // validation
 
         return userRepository.save(user);
     }

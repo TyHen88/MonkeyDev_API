@@ -25,6 +25,11 @@ public class CorsFilterConfiguration {
                 return null;
             }
 
+            /**
+             * TODO You can write your own logic code to determine whether to allow the
+             * current request or not.
+             */
+
             CorsConfiguration configuration = new CorsConfiguration();
 
             configuration.addAllowedOriginPattern(origin);

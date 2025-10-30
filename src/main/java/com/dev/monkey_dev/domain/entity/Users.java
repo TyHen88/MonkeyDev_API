@@ -63,10 +63,10 @@ public class Users extends BaseEntity {
 
     // Exclude password from JSON serialization and toString to avoid accidental
     // leakage.
-    @NotBlank
+    // Password is optional for OAuth2 users, so we don't use @NotBlank here
     @Size(min = 8, max = 255)
     @JsonIgnore
-    @Column(name = "password", length = 255, nullable = false)
+    @Column(name = "password", length = 255, nullable = true)
     //
     private String password;
 

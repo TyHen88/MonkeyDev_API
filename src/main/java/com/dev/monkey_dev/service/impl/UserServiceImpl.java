@@ -30,7 +30,7 @@ public class UserServiceImpl implements IUserService {
         if (userRepository.findByEmail(userRequestDto.getEmail()).isPresent()) {
             throw new BusinessException(StatusCode.USER_ID_ALREADY_EXISTS);
         }
-        if (userRepository.findByUsername(userRequestDto.getUsername()).isPresent()) {
+        if (!userRepository.findByUsername(userRequestDto.getUsername()).isEmpty()) {
             throw new BusinessException(StatusCode.USER_ID_ALREADY_EXISTS);
         }
         Users user = userMapper.toUserEntity(userRequestDto);
@@ -67,7 +67,10 @@ public class UserServiceImpl implements IUserService {
             }
         }
         if (!user.getUsername().equals(userRequestDto.getUsername())) {
-            if (userRepository.findByUsername(userRequestDto.getUsername()).isPresent()) {
+            var usersWithUsername = userRepository.findByUsername(userRequestDto.getUsername());
+            boolean usernameTakenByAnother = usersWithUsername.stream()
+                    .anyMatch(existing -> existing.getId() != null && !existing.getId().equals(user.getId()));
+            if (usernameTakenByAnother) {
                 throw new BusinessException(StatusCode.USER_ID_ALREADY_EXISTS);
             }
         }

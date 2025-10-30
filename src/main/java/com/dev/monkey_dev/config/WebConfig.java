@@ -14,7 +14,7 @@ import java.util.Properties;
 public class WebConfig implements WebMvcConfigurer {
 
     @Bean
-    public HandlerExceptionResolver customHandlerExceptionResolver() {
+    public HandlerExceptionResolver customHandlerExceptionResolver() { // Changed method name
         SimpleMappingExceptionResolver resolver = new SimpleMappingExceptionResolver();
         Properties mappings = new Properties();
         mappings.setProperty("Exception", "error/500");
@@ -22,7 +22,7 @@ public class WebConfig implements WebMvcConfigurer {
         resolver.setExceptionMappings(mappings);
         resolver.setDefaultErrorView("error/default");
         resolver.setExceptionAttribute("ex");
-        resolver.setWarnLogCategory("monkey_dev.error");
+        resolver.setWarnLogCategory("monkey-dev.error");
         return resolver;
     }
 
