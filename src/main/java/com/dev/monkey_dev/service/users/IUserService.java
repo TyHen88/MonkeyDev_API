@@ -9,7 +9,7 @@ public interface IUserService {
 
     UserResponseDto createUser(UserRequestDto userRequestDto);
 
-    UserResponseDto getUserById(Long id);
+    UserResponseDto getUserProfile();
 
     UserResponseDto getUserByEmailOrUsername(String email, String username);
 

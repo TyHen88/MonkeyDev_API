@@ -38,9 +38,9 @@ public class UserController extends BaseApiRestController {
      * @param id user ID
      * @return user details
      */
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable("id") Long id) {
-        UserResponseDto user = userService.getUserById(id);
+    @GetMapping("/profile")
+    public ResponseEntity<?> getUserProfile() {
+        UserResponseDto user = userService.getUserProfile();
         return success(user);
     }
 

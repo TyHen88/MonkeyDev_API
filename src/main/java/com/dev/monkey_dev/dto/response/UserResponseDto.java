@@ -19,4 +19,9 @@ public class UserResponseDto {
     private String username;
     private String email;
     private Boolean active;
+    private String createdAt;
+    private String updatedAt;
+    private String role;
+    private String profileImageUrl;
+    private String authProvider;
 }

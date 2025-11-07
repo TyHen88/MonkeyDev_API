@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
-
+import org.springframework.security.core.context.SecurityContextHolder;
 import lombok.RequiredArgsConstructor;
 
 import com.dev.monkey_dev.domain.entity.Users;
@@ -15,6 +15,7 @@ import com.dev.monkey_dev.dto.mapper.UserMapper;
 import com.dev.monkey_dev.dto.request.UserRequestDto;
 import com.dev.monkey_dev.dto.response.UserResponseDto;
 import com.dev.monkey_dev.exception.BusinessException;
+import com.dev.monkey_dev.helper.AuthHelper;
 import com.dev.monkey_dev.service.users.IUserService;
 
 @Service
@@ -40,8 +41,11 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserResponseDto getUserById(Long id) {
-        Users user = userRepository.findById(id).orElseThrow(() -> new BusinessException(StatusCode.USER_NOT_FOUND));
+    public UserResponseDto getUserProfile() {
+        Long userId = AuthHelper.getUserId();
+        Users user = userRepository
+                .findById(userId)
+                .orElseThrow(() -> new BusinessException(StatusCode.USER_NOT_FOUND));
         return userMapper.toUserResponseDto(user);
     }
 

@@ -1,6 +1,5 @@
 package com.dev.monkey_dev.domain.entity;
 
-import com.dev.monkey_dev.domain.entity.Users;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

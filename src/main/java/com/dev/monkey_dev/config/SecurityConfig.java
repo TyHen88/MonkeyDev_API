@@ -91,7 +91,8 @@ public class SecurityConfig {
                                                                 "/test/**")
                                                 .permitAll()
                                                 .requestMatchers(
-                                                                "/api/wb/v1/**")
+                                                                "/api/wb/v1/**",
+                                                                "/api/wb/v1/user/**")
                                                 .authenticated()
                                                 .requestMatchers("/ws/**").permitAll()
                                                 .anyRequest().authenticated())
