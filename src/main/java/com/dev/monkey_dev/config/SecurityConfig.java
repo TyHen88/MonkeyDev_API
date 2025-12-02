@@ -65,11 +65,13 @@ public class SecurityConfig {
                                                         return config;
                                                 }))
                                 .authorizeHttpRequests(auth -> auth
+                                                // Publicly accessible endpoints
                                                 .requestMatchers(
                                                                 "/",
                                                                 "/chat",
                                                                 "/auth/**",
-                                                                "/api/wb/v1/auth/**",
+                                                                "/api/wb/v1/auth/login",
+                                                                "/api/wb/v1/admin/users/register",
                                                                 "/api/wb/v1/password/**",
                                                                 "/api/v1/auth/**",
                                                                 "/api/v1/image/**",
@@ -88,13 +90,19 @@ public class SecurityConfig {
                                                                 "/swagger-ui/**",
                                                                 "/swagger-ui/index.html",
                                                                 "/actuator/**",
-                                                                "/test/**")
+                                                                "/test/**",
+                                                                "/ws/**")
                                                 .permitAll()
+                                                // ADMIN role endpoints
                                                 .requestMatchers(
-                                                                "/api/wb/v1/**",
-                                                                "/api/wb/v1/user/**")
-                                                .authenticated()
-                                                .requestMatchers("/ws/**").permitAll()
+                                                                "/api/wb/v1/admin/users/**")
+                                                .hasRole("ADMIN")
+                                                // authenticated user endpoints
+                                                .requestMatchers(
+                                                                "/api/wb/v1/user/**",
+                                                                "/api/wb/v1/auth/encrypt")
+                                                .hasAnyRole("USER", "ADMIN")
+                                                // All others require authentication
                                                 .anyRequest().authenticated())
                                 .exceptionHandling(exceptionHandling -> exceptionHandling
                                                 .accessDeniedHandler(accessDeniedHandler)

@@ -1,16 +1,23 @@
 package com.dev.monkey_dev.service.impl;
 
+import com.dev.monkey_dev.common.password.PasswordEncryption;
 import com.dev.monkey_dev.service.auth.AuthService;
 
 import com.dev.monkey_dev.config.UserAuthenticationProvider;
 import com.dev.monkey_dev.config.JwtUtil;
 import com.dev.monkey_dev.domain.entity.SecurityUser;
+import com.dev.monkey_dev.domain.entity.Users;
+import com.dev.monkey_dev.domain.respository.UserRepository;
 import com.dev.monkey_dev.exception.BusinessException;
 import com.dev.monkey_dev.common.api.StatusCode;
 import com.dev.monkey_dev.payload.auth.LoginRequest;
 import com.dev.monkey_dev.payload.auth.SetUpPasswordRequest;
 import com.dev.monkey_dev.payload.auth.UpdatePasswordRequest;
 import com.dev.monkey_dev.payload.auth.AuthResponse;
+import com.dev.monkey_dev.dto.mapper.UserMapper;
+import com.dev.monkey_dev.dto.request.UserAdminRequestDto;
+import com.dev.monkey_dev.enums.AuthProvider;
+import com.dev.monkey_dev.enums.Roles;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +33,9 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserAuthenticationProvider userAuthenticationProvider;
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
+    private final PasswordEncryption passwordEncryption;
 
     @Override
     @Transactional
@@ -53,6 +63,31 @@ public class AuthServiceImpl implements AuthService {
                 token,
                 "Bearer",
                 jwtUtil.getExpireIn());
+    }
+
+    @Override
+    @Transactional
+    public void registerUser(UserAdminRequestDto requestDto) throws Throwable {
+        if (!userRepository.findByUsername(requestDto.getUsername()).isEmpty()) {
+            throw new BusinessException(StatusCode.USER_ID_ALREADY_EXISTS);
+        }
+        String rawPassword;
+        try {
+            rawPassword = passwordEncryption.getPassword(requestDto.getPassword());
+        } catch (Exception e) {
+            throw new BusinessException(StatusCode.PASSWORD_ENCRYPTION_REQUIRED, e);
+        }
+        Users user = Users.builder()
+                .fullName(requestDto.getFullName())
+                .username(requestDto.getUsername())
+                .email(requestDto.getEmail())
+                .password(rawPassword)
+                .role(Roles
+                        .valueOf(requestDto.getRole() != null ? requestDto.getRole().toUpperCase() : Roles.USER.name()))
+                .active(requestDto.getActive() != null ? requestDto.getActive() : true)
+                .authProvider(AuthProvider.LOCAL)
+                .build();
+        userRepository.save(user);
     }
 
     @Override

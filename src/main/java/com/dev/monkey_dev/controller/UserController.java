@@ -1,16 +1,20 @@
 package com.dev.monkey_dev.controller;
 
 import com.dev.monkey_dev.controller.base.BaseApiRestController;
+import com.dev.monkey_dev.common.Pagination;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import com.dev.monkey_dev.dto.request.CriteriaFilter;
 import com.dev.monkey_dev.dto.request.UserRequestDto;
 import com.dev.monkey_dev.dto.response.UserResponseDto;
 import com.dev.monkey_dev.service.users.IUserService;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/wb/v1/user")
@@ -19,18 +23,6 @@ import java.util.List;
 public class UserController extends BaseApiRestController {
 
     private final IUserService userService;
-
-    /**
-     * Get all users by active status.
-     * 
-     * @param active true for active users, false for inactive
-     * @return list of users with the given active status
-     */
-    @GetMapping("/active/{active}")
-    public ResponseEntity<?> getUsersActive(@PathVariable("active") Boolean active) {
-        List<UserResponseDto> users = userService.getAllUserIsActive(active);
-        return success(users);
-    }
 
     /**
      * Get user by ID.
@@ -67,18 +59,6 @@ public class UserController extends BaseApiRestController {
     public ResponseEntity<?> updateUser(@PathVariable("id") Long id, @RequestBody UserRequestDto userRequestDto) {
         userService.updateUser(id, userRequestDto);
         return successMessage("User updated successfully");
-    }
-
-    /**
-     * Delete a user by ID.
-     * 
-     * @param id user ID
-     * @return success message
-     */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable("id") Long id) {
-        userService.deleteUser(id);
-        return successMessage("User deleted successfully");
     }
 
     /**

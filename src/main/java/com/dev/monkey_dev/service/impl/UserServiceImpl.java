@@ -1,22 +1,28 @@
 package com.dev.monkey_dev.service.impl;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.security.core.context.SecurityContextHolder;
-import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.dev.monkey_dev.domain.entity.Users;
-import com.dev.monkey_dev.domain.respository.UserRepository;
 import com.dev.monkey_dev.common.api.StatusCode;
+import com.dev.monkey_dev.domain.entity.Address;
+import com.dev.monkey_dev.domain.entity.Users;
+import com.dev.monkey_dev.domain.respository.AddressRepository;
+import com.dev.monkey_dev.domain.respository.UserRepository;
 import com.dev.monkey_dev.dto.mapper.UserMapper;
+import com.dev.monkey_dev.dto.request.CriteriaFilter;
 import com.dev.monkey_dev.dto.request.UserRequestDto;
 import com.dev.monkey_dev.dto.response.UserResponseDto;
 import com.dev.monkey_dev.exception.BusinessException;
 import com.dev.monkey_dev.helper.AuthHelper;
 import com.dev.monkey_dev.service.users.IUserService;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +30,7 @@ public class UserServiceImpl implements IUserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final AddressRepository addressRepository;
 
     @Override
     @Transactional
@@ -46,7 +53,8 @@ public class UserServiceImpl implements IUserService {
         Users user = userRepository
                 .findById(userId)
                 .orElseThrow(() -> new BusinessException(StatusCode.USER_NOT_FOUND));
-        return userMapper.toUserResponseDto(user);
+        List<Address> addresses = addressRepository.findByUserId(userId);
+        return userMapper.toUsersResponseDto(user, addresses);
     }
 
     @Override
@@ -88,22 +96,37 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional
-    public void deleteUser(Long id) {
+    public void updateUserStatus(Long id, Boolean isActive) {
         var user = userRepository.findById(id).orElseThrow(() -> new BusinessException(StatusCode.USER_NOT_FOUND));
-        user.deactivate();
+        if (isActive != null && isActive) {
+            user.activate();
+        } else if (isActive != null && !isActive) {
+            user.deactivate();
+        } else {
+            throw new BusinessException(StatusCode.IS_ACTIVE_REQUIRED);
+        }
         userRepository.save(user);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<UserResponseDto> getAllUserIsActive(Boolean isActive) {
-        if (isActive == null) {
-            throw new BusinessException(StatusCode.IS_ACTIVE_REQUIRED);
-        }
-        List<UserResponseDto> users = userRepository.findAllUserIsActive(isActive);
-        return users
-                .stream()
-                .collect(Collectors.toList());
+    public Page<UserResponseDto> getAllUsers(Boolean isActive, CriteriaFilter criteriaFilter) {
+        // Use default sort by createdAt descending if no sort is specified
+        Pageable pageable = criteriaFilter != null
+                ? criteriaFilter.toPageable("createdAt", Sort.Direction.DESC)
+                : PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        // Get search term from criteria filter
+        String search = criteriaFilter != null ? criteriaFilter.getSearch() : null;
+
+        // Fetch paginated users from repository
+        Page<Users> usersPage = userRepository.findAllUsersWithFilters(isActive, search, pageable);
+
+        // Map Users entities to UserResponseDto with addresses
+        return usersPage.map(user -> {
+            List<Address> addresses = addressRepository.findByUserId(user.getId());
+            return userMapper.toUsersResponseDto(user, addresses);
+        });
     }
 
 }

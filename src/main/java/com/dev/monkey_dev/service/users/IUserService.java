@@ -1,7 +1,8 @@
 package com.dev.monkey_dev.service.users;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
 
+import com.dev.monkey_dev.dto.request.CriteriaFilter;
 import com.dev.monkey_dev.dto.request.UserRequestDto;
 import com.dev.monkey_dev.dto.response.UserResponseDto;
 
@@ -15,7 +16,7 @@ public interface IUserService {
 
     UserResponseDto updateUser(Long id, UserRequestDto userRequestDto);
 
-    void deleteUser(Long id);
+    void updateUserStatus(Long id, Boolean isActive);
 
-    List<UserResponseDto> getAllUserIsActive(Boolean isActive);
+    Page<UserResponseDto> getAllUsers(Boolean isActive, CriteriaFilter criteriaFilter);
 }

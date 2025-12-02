@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Setter;
 import lombok.Builder;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.List;
 
 @Getter
 @Setter
@@ -24,4 +25,5 @@ public class UserResponseDto {
     private String role;
     private String profileImageUrl;
     private String authProvider;
+    private List<AddressResponseDto> addresses;
 }

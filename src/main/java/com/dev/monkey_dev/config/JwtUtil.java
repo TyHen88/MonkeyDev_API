@@ -79,8 +79,20 @@ public class JwtUtil {
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", Objects.requireNonNull(securityUser.getUserId(), "User ID cannot be null"));
         claims.put("username", Objects.requireNonNull(securityUser.getUsername(), "Username cannot be null"));
-        // claims.put("role", Objects.requireNonNull(securityUser.getAuthorities(),
-        // "Authorities cannot be null"));
+
+        // Add role to claims
+        String role = securityUser.getRole();
+        claims.put("role", role);
+
+        // Note: We do not populate the "scope" claim here because:
+        // 1. SecurityUser.getAuthorities() returns role-based authorities (e.g.,
+        // "ROLE_USER")
+        // 2. The scope claim should contain actual scope values (e.g., "read", "write",
+        // "profile")
+        // 3. Role-based authorization is handled separately via the "role" claim
+        // If scope-based permissions are needed in the future, they should be added
+        // separately
+        // and not extracted from SecurityUser authorities which are role-based
 
         JwtClaimsSet jwtClaimsSet = JwtClaimsSet.builder()
                 .subject(securityUser.getUsername())

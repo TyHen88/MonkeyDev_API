@@ -14,6 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.dev.monkey_dev.controller.base.BaseApiRestController;
 import com.dev.monkey_dev.payload.auth.LoginRequest;
 import com.dev.monkey_dev.service.auth.AuthService;
+import com.dev.monkey_dev.util.PasswordUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -48,8 +49,10 @@ public class AuthenticationController extends BaseApiRestController {
         return created(authService.login(payload));
     }
 
-    @GetMapping("/oauth2-test")
-    public ModelAndView testOAuth2() {
-        return new ModelAndView("oauth2-test");
+    @PostMapping("/encrypt")
+    public Object encryptPassword(@RequestBody @Valid String payload) throws Throwable {
+        var passwordValid = payload.replace("\"", "");
+        var passwordEncrypted = PasswordUtils.encrypt(passwordValid);
+        return successMessage(passwordEncrypted);
     }
 }

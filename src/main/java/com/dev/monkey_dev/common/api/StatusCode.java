@@ -47,7 +47,7 @@ public enum StatusCode {
     // 453 Custom Client Not Found
     USER_NOT_FOUND(45300, "User not found", 453),
     CLIENT_NOT_FOUND(45302, "Client not found", 453),
-
+    ADDRESS_NOT_FOUND(45303, "Address not found", 453),
     // 500 Internal Server Error
     AUTHENTICATION_FAILED(50000, "Authentication failed", 500),
 

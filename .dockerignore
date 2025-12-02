@@ -1,0 +1,68 @@
+# Build artifacts
+build/
+.gradle/
+out/
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.settings/
+.classpath
+.project
+
+# Git files
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+HELP.md
+docs/
+
+# Test files and reports
+test-results/
+reports/
+*.log
+
+# Local configuration files
+application-local.yml
+application-local.properties
+*.local.*
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Gradle wrapper (optional - keep if needed for build)
+# gradle/
+# gradlew
+# gradlew.bat
+
+# Docker files
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.*.yml
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
