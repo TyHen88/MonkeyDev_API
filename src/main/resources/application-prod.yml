@@ -1,0 +1,112 @@
+server:
+  port: 8888
+
+spring:
+  security:
+      oauth2:
+        client:
+          registration:
+            google:
+              client-id: ${GOOGLE_CLIENT_ID}
+              client-secret: ${GOOGLE_CLIENT_SECRET}
+              scope:
+                - email
+                - profile
+              redirect-uri: https://easycart.up.railway.app/oauth2/callback/google
+              authorization-grant-type: authorization_code
+              client-name: Google
+  ai:
+    gemini:
+      api-key: AIzaSyCiH0GVvBpGgFqjEGsMLp4sRflgHJwLSHk
+      base-url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent
+      model: gemini-2.0-flash
+      temperature: 0.5
+
+  main:
+    allow-bean-definition-overriding: true
+  datasource:
+    url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}
+    username: ${PGUSER}
+    password: ${PGPASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 10
+  sql:
+    init:
+      mode: never
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          lob:
+            non_contextual_creation: true
+      javax:
+        persistence:
+          schema-generation:
+            database:
+              action: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+# JSONB Configuration
+json:
+  mapping:
+    pretty-print: true
+
+# Password Encryption
+password:
+  encryption:
+    key: mytestkeyasdddds
+
+# Application URLs
+web-url: http://localhost:3333
+
+# JWT Configuration
+jwt:
+  expiration: 86400000 # 24 hours in milliseconds
+  issuer: monkey-dev
+  secret: mySecretKey
+  expirationMs: 86400000 # 24 hours in milliseconds
+
+# Logging Configuration
+logging:
+  # file:
+  #   name: planpro-app.log
+  level:
+    root: info
+    org.hibernate: info
+    org.hibernate.SQL: debug
+    org.springframework.jdbc.core: trace
+    org.hibernate.orm.jdbc.bind: trace
+
+# File Storage Configuration
+file:
+  server-path: D:/upload-files/ || /home/henty/upload-files/
+  client-path: /api/wb/v1/image
+  temp-path: ${file.server-path}/temp_qr
+  base-url: https://easycart.up.railway.app${file.client-path}
+  base-image-url: https://easycart.up.railway.app
+
+
+# OAuth2 Configuration
+app:
+  oauth2:
+    authorized-redirect-url: https://easycart.up.vercel.app/oauth2/redirect
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    url: /v3/api-docs
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  show-actuator: true
+  cache:
+    disabled: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
