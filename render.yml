@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: monkeydev-api
+    env: java
+    plan: free
+    buildCommand: ./mvnw clean package
+    startCommand: java -jar target/*.jar
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+    autoDeploy: true
