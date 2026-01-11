@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import com.dev.monkey_dev.domain.entity.Address;
 import com.dev.monkey_dev.dto.request.AddressRequestDto;
 import com.dev.monkey_dev.dto.response.AddressResponseDto;
+import com.dev.monkey_dev.enums.AddressType;
 
 @Component
 public class AddressMapper {
@@ -13,7 +14,7 @@ public class AddressMapper {
             return null;
         }
         return Address.builder()
-                .type(addressRequestDto.getType())
+                .type(AddressType.valueOf(addressRequestDto.getType().toUpperCase()))
                 .fullName(addressRequestDto.getFullName())
                 .phone(addressRequestDto.getPhone())
                 .addressLine1(addressRequestDto.getAddressLine1())

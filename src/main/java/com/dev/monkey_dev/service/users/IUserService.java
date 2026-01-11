@@ -14,7 +14,7 @@ public interface IUserService {
 
     UserResponseDto getUserByEmailOrUsername(String email, String username);
 
-    UserResponseDto updateUser(Long id, UserRequestDto userRequestDto);
+    UserResponseDto updateUser(UserRequestDto userRequestDto);
 
     void updateUserStatus(Long id, Boolean isActive);
 

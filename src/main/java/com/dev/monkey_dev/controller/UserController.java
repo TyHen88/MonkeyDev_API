@@ -1,20 +1,22 @@
 package com.dev.monkey_dev.controller;
 
-import com.dev.monkey_dev.controller.base.BaseApiRestController;
-import com.dev.monkey_dev.common.Pagination;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import com.dev.monkey_dev.dto.request.CriteriaFilter;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.dev.monkey_dev.controller.base.BaseApiRestController;
 import com.dev.monkey_dev.dto.request.UserRequestDto;
 import com.dev.monkey_dev.dto.response.UserResponseDto;
 import com.dev.monkey_dev.service.users.IUserService;
 
-import java.util.HashMap;
-import java.util.Map;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/wb/v1/user")
@@ -42,7 +44,7 @@ public class UserController extends BaseApiRestController {
      * @param userRequestDto user data
      * @return created user
      */
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<?> createUser(@RequestBody UserRequestDto userRequestDto) {
         UserResponseDto user = userService.createUser(userRequestDto);
         return created(user);
@@ -55,9 +57,9 @@ public class UserController extends BaseApiRestController {
      * @param userRequestDto updated user data
      * @return updated user
      */
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable("id") Long id, @RequestBody UserRequestDto userRequestDto) {
-        userService.updateUser(id, userRequestDto);
+    @PutMapping("/update-profile")
+    public ResponseEntity<?> updateUser(@RequestBody UserRequestDto userRequestDto) {
+        userService.updateUser(userRequestDto);
         return successMessage("User updated successfully");
     }
 

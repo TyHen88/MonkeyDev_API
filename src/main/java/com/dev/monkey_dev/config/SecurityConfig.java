@@ -7,7 +7,8 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.dev.monkey_dev.properties.RsaKeyProperties;
-import com.dev.monkey_dev.service.impl.UserAuthServiceImpl;
+import com.dev.monkey_dev.service.users.UserAuthServiceImpl;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -98,6 +99,7 @@ public class SecurityConfig {
                                                                 "/api/wb/v1/admin/users/**")
                                                 .hasRole("ADMIN")
                                                 // authenticated user endpoints
+                                                .requestMatchers("/api/wb/v1/user/create").hasRole("ADMIN")
                                                 .requestMatchers(
                                                                 "/api/wb/v1/user/**",
                                                                 "/api/wb/v1/auth/encrypt")

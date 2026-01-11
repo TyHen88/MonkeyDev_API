@@ -1,13 +1,12 @@
 package com.dev.monkey_dev.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-
-import com.dev.monkey_dev.enums.AddressType;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Setter;
 
 @Setter
 @Getter
@@ -16,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AddressRequestDto {
-    private AddressType type;
+    private String type;
     private String fullName;
     private String phone;
     private String addressLine1;

@@ -1,8 +1,6 @@
-package com.dev.monkey_dev.service.impl;
+package com.dev.monkey_dev.service.auth;
 
 import com.dev.monkey_dev.common.password.PasswordEncryption;
-import com.dev.monkey_dev.service.auth.AuthService;
-
 import com.dev.monkey_dev.config.UserAuthenticationProvider;
 import com.dev.monkey_dev.config.JwtUtil;
 import com.dev.monkey_dev.domain.entity.SecurityUser;

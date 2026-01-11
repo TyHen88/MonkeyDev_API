@@ -38,4 +38,7 @@ out/
 
 ### Local Configuration Files ###
 application-local.yml
+application.yml
 **/application-local.yml
+**/application.yml
+

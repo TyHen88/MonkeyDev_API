@@ -1,4 +1,4 @@
-package com.dev.monkey_dev.service.impl;
+package com.dev.monkey_dev.service.auth;
 
 import com.dev.monkey_dev.common.api.StatusCode;
 import com.dev.monkey_dev.domain.respository.UserRepository;
@@ -8,6 +8,7 @@ import com.dev.monkey_dev.enums.Roles;
 import com.dev.monkey_dev.exception.BusinessException;
 import com.dev.monkey_dev.payload.auth.GoogleOAuth2UserInfo;
 import com.dev.monkey_dev.payload.auth.OAuth2UserInfo;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

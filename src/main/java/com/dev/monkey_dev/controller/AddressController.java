@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import com.dev.monkey_dev.controller.base.BaseApiRestController;
 import com.dev.monkey_dev.dto.request.AddressRequestDto;
 import com.dev.monkey_dev.dto.response.AddressResponseDto;
-import com.dev.monkey_dev.service.users.IAddressService;
+import com.dev.monkey_dev.service.address.IAddressService;
 
 @RestController
 @RequestMapping("/api/wb/v1/addresses")
@@ -32,6 +32,13 @@ public class AddressController extends BaseApiRestController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getAddressById(@PathVariable Long id) {
         AddressResponseDto response = addressService.getAddressById(id);
+        return success(response);
+    }
+
+    @Operation(summary = "Get address by ID", description = "Get an address by its ID")
+    @GetMapping("/all-addresses")
+    public ResponseEntity<?> getUsersAddress() {
+        var response = addressService.getAllAddresses();
         return success(response);
     }
 

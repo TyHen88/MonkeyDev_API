@@ -12,6 +12,10 @@ import com.dev.monkey_dev.domain.entity.Users;
 import com.dev.monkey_dev.dto.response.UserResponseDto;
 
 public interface UserRepository extends JpaRepository<Users, Long> {
+
+    @Query("SELECT u FROM Users u WHERE u.id = :id and u.active = true")
+    Optional<Users> findUserById(Long id);
+
     Optional<Users> findByEmail(String email);
 
     List<Users> findByUsername(String username);

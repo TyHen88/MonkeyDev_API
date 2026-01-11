@@ -1,4 +1,4 @@
-package com.dev.monkey_dev.service.impl;
+package com.dev.monkey_dev.service.users;
 
 import java.util.List;
 
@@ -20,7 +20,6 @@ import com.dev.monkey_dev.dto.request.UserRequestDto;
 import com.dev.monkey_dev.dto.response.UserResponseDto;
 import com.dev.monkey_dev.exception.BusinessException;
 import com.dev.monkey_dev.helper.AuthHelper;
-import com.dev.monkey_dev.service.users.IUserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -70,8 +69,9 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional
-    public UserResponseDto updateUser(Long id, UserRequestDto userRequestDto) {
-        Users user = userRepository.findById(id).orElseThrow(() -> new BusinessException(StatusCode.USER_NOT_FOUND));
+    public UserResponseDto updateUser(UserRequestDto userRequestDto) {
+        Long id = AuthHelper.getUserId();
+        var user = userRepository.findUserById(id).orElseThrow(() -> new BusinessException(StatusCode.USER_NOT_FOUND));
 
         if (!user.getEmail().equals(userRequestDto.getEmail())) {
             if (userRepository.findByEmail(userRequestDto.getEmail()).isPresent()) {
@@ -90,7 +90,7 @@ public class UserServiceImpl implements IUserService {
         user.setFullName(userRequestDto.getFullName());
         user.setUsername(userRequestDto.getUsername());
         user.setEmail(userRequestDto.getEmail());
-        Users savedUser = userRepository.save(user);
+        var savedUser = userRepository.save(user);
         return userMapper.toUserResponseDto(savedUser);
     }
 

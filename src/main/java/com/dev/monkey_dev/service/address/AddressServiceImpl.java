@@ -1,4 +1,7 @@
-package com.dev.monkey_dev.service.impl;
+package com.dev.monkey_dev.service.address;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,8 +15,7 @@ import com.dev.monkey_dev.domain.respository.UserRepository;
 import com.dev.monkey_dev.dto.mapper.AddressMapper;
 import com.dev.monkey_dev.dto.request.AddressRequestDto;
 import com.dev.monkey_dev.dto.response.AddressResponseDto;
-import com.dev.monkey_dev.service.users.IAddressService;
-
+import com.dev.monkey_dev.enums.AddressType;
 import com.dev.monkey_dev.exception.BusinessException;
 import com.dev.monkey_dev.helper.AuthHelper;
 
@@ -29,7 +31,8 @@ public class AddressServiceImpl implements IAddressService {
     @Transactional
     public AddressResponseDto createAddress(AddressRequestDto addressRequestDto) {
         Address address = addressMapper.toAddressEntity(addressRequestDto);
-        address.setUser(userRepository.findById(AuthHelper.getUserId())
+        Long userId = AuthHelper.getUserId();
+        address.setUser(userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(StatusCode.USER_NOT_FOUND)));
         address = addressRepository.save(address);
         return addressMapper.toAddressResponseDto(address);
@@ -43,12 +46,20 @@ public class AddressServiceImpl implements IAddressService {
         return addressMapper.toAddressResponseDto(address);
     }
 
+    public List<AddressResponseDto> getAllAddresses() {
+        Long userId = AuthHelper.getUserId();
+        List<Address> addresses = addressRepository.findDefaultAddressByUserId(userId);
+        return addresses.stream()
+                .map(addressMapper::toAddressResponseDto)
+                .collect(Collectors.toList());
+    }
+
     @Override
     @Transactional
     public AddressResponseDto updateAddress(Long id, AddressRequestDto addressRequestDto) {
         Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(StatusCode.ADDRESS_NOT_FOUND));
-        address.setType(addressRequestDto.getType());
+        address.setType(AddressType.valueOf(addressRequestDto.getType().toUpperCase()));
         address.setFullName(addressRequestDto.getFullName());
         address.setPhone(addressRequestDto.getPhone());
         address.setAddressLine1(addressRequestDto.getAddressLine1());

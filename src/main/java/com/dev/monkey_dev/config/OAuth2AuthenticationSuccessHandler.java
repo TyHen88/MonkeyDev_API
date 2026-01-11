@@ -1,8 +1,9 @@
 package com.dev.monkey_dev.config;
 
 import com.dev.monkey_dev.domain.entity.SecurityUser;
-import com.dev.monkey_dev.service.impl.OAuth2UserPrincipal;
 import com.dev.monkey_dev.domain.entity.Users;
+import com.dev.monkey_dev.service.auth.OAuth2UserPrincipal;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

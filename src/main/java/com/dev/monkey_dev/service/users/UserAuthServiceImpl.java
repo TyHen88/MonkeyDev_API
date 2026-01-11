@@ -1,4 +1,4 @@
-package com.dev.monkey_dev.service.impl;
+package com.dev.monkey_dev.service.users;
 
 import com.dev.monkey_dev.domain.entity.SecurityUser;
 import com.dev.monkey_dev.domain.entity.Users;

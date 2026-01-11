@@ -1,4 +1,4 @@
-package com.dev.monkey_dev.service.impl;
+package com.dev.monkey_dev.service.auth;
 
 import com.dev.monkey_dev.domain.entity.Users;
 import lombok.Getter;
