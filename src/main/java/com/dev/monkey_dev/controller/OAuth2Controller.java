@@ -1,11 +1,8 @@
-// package com.dev.monkey_dev.controller;
+package com.dev.monkey_dev.controller;
 
 import java.io.IOException;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.dev.monkey_dev.service.auth.OAuth2AuthService;
 
@@ -19,11 +16,11 @@ import lombok.extern.slf4j.Slf4j;
 // client
 // * configuration.
 // */
-// @RestController
-// @RequestMapping("/oauth2")
-// @RequiredArgsConstructor
-// @Slf4j
-// public class OAuth2Controller {
+@RestController
+@RequestMapping("/oauth2")
+@RequiredArgsConstructor
+@Slf4j
+public class OAuth2Controller {
 
     private final OAuth2AuthService oAuth2AuthService;
 
@@ -36,8 +33,7 @@ import lombok.extern.slf4j.Slf4j;
     public void callbackGoogle(
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String error,
-            HttpServletResponse response
-    ) throws IOException {
+            HttpServletResponse response) throws IOException {
         response.sendRedirect(oAuth2AuthService.handleGoogleCallback(code, error));
     }
 
@@ -46,8 +42,7 @@ import lombok.extern.slf4j.Slf4j;
     public void callbackGoogleLegacy(
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String error,
-            HttpServletResponse response
-    ) throws IOException {
+            HttpServletResponse response) throws IOException {
         response.sendRedirect(oAuth2AuthService.handleGoogleCallback(code, error));
     }
 }

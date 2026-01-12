@@ -12,6 +12,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Base implementation for HTTP request/response logging.
+ * Provides structured logging with proper formatting and header filtering.
+ */
 @Component
 @Slf4j
 public class LoggingServiceImpl implements ILoggingService {
@@ -58,43 +62,58 @@ public class LoggingServiceImpl implements ILoggingService {
 
     @Override
     public String handleLoggingRequest(HttpServletRequest httpServletRequest, Object body) {
-        {
-            StringBuilder builder = new StringBuilder();
-            Map<String, String> parameters = buildParametersMap(httpServletRequest);
+        StringBuilder builder = new StringBuilder();
+        Map<String, String> parameters = buildParametersMap(httpServletRequest);
+        Map<String, String> headers = buildHeadersMap(httpServletRequest);
 
-            builder.append("\n[Request]")
-                    .append("\n[Url] [").append(httpServletRequest.getMethod())
-                    .append(" ").append(httpServletRequest.getRequestURI()).append("] ")
-                    .append("\n[Header] [").append(buildHeadersMap(httpServletRequest)).append("] ");
+        builder.append("\n========== REQUEST ==========")
+                .append("\nMethod: ").append(httpServletRequest.getMethod())
+                .append("\nURI: ").append(httpServletRequest.getRequestURI());
 
-            if (!parameters.isEmpty()) {
-                builder.append("\n[Parameter] [").append(parameters).append("] ");
-            }
-
-            if (body != null) {
-                builder.append("\n[Body] [")
-                        .append(ObjectUtils.writerWithDefaultPrettyPrinter(body))
-                        .append("]\n");
-            }
-            return builder.append("\n").toString();
+        String queryString = httpServletRequest.getQueryString();
+        if (queryString != null && !queryString.isEmpty()) {
+            builder.append("?").append(queryString);
         }
+
+        if (!headers.isEmpty()) {
+            builder.append("\nHeaders: ").append(headers);
+        }
+
+        if (!parameters.isEmpty()) {
+            builder.append("\nParameters: ").append(parameters);
+        }
+
+        if (body != null) {
+            builder.append("\nBody: ")
+                    .append(ObjectUtils.writerWithDefaultPrettyPrinter(body));
+        }
+
+        builder.append("\n=============================\n");
+        return builder.toString();
     }
 
     @Override
     public String handleLoggingResponse(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
             Object body) {
         StringBuilder builder = new StringBuilder();
+        Map<String, String> responseHeaders = buildHeadersMap(httpServletResponse);
+        int statusCode = httpServletResponse.getStatus();
 
-        builder.append("\n[Response]")
-                .append("\n[Url] [").append(httpServletRequest.getMethod())
-                .append(" ").append(httpServletRequest.getRequestURI()).append("] ")
-                .append("\n[Header] [").append(buildHeadersMap(httpServletResponse)).append("] ");
+        builder.append("\n========== RESPONSE ==========")
+                .append("\nMethod: ").append(httpServletRequest.getMethod())
+                .append("\nURI: ").append(httpServletRequest.getRequestURI())
+                .append("\nStatus: ").append(statusCode);
+
+        if (!responseHeaders.isEmpty()) {
+            builder.append("\nHeaders: ").append(responseHeaders);
+        }
 
         if (body != null) {
-            builder.append("\n[Body] [")
-                    .append(ObjectUtils.writeValueAsSingleLineString(body))
-                    .append("]\n");
+            builder.append("\nBody: ")
+                    .append(ObjectUtils.writeValueAsSingleLineString(body));
         }
-        return builder.append("\n").toString();
+
+        builder.append("\n=============================\n");
+        return builder.toString();
     }
 }

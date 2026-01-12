@@ -85,10 +85,11 @@ public class ObjectUtils {
     public static StringBuilder logBeforeRequest(String url, HttpMethod httpMethod, Object request) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("\n[Request]\n")
-                .append("[Url [ ").append(httpMethod)
+                .append("\n============== REQUEST ==============").append("\n")
+                .append("\n[Url : [ ").append(httpMethod)
                 .append(" ")
-                .append(url).append("]\n")
-                .append("[Body] [")
+                .append(url).append("]")
+                .append("[Body] : [")
                 .append(ObjectUtils.writeValueAsString(request))
                 .append("]\n");
         return stringBuilder;
@@ -98,12 +99,13 @@ public class ObjectUtils {
 
         StringBuilder sb = new StringBuilder();
         sb.append("\n[Response]\n")
-                .append("[Url [ ").append(httpMethod)
+                .append("\n============== RESPONSE ==============").append("\n")
+                .append("\n[Url : [ ").append(httpMethod)
                 .append(" ")
                 .append(url).append("]\n")
-                .append("[Body] [{")
+                .append("[Body] : [")
                 .append(ObjectUtils.writeValueAsString(request))
-                .append("}\n");
+                .append("]\n");
         return sb;
     }
 }
