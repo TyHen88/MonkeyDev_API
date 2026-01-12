@@ -1,4 +1,4 @@
-package com.dev.monkey_dev.controller;
+// package com.dev.monkey_dev.controller;
 
 import java.io.IOException;
 
@@ -13,16 +13,17 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Custom OAuth2 controller to handle OAuth2 authentication flow manually.
- * This provides a more reliable alternative to Spring Security's OAuth2 client
- * configuration.
- */
-@RestController
-@RequestMapping("/oauth2")
-@RequiredArgsConstructor
-@Slf4j
-public class OAuth2Controller {
+// /**
+// * Custom OAuth2 controller to handle OAuth2 authentication flow manually.
+// * This provides a more reliable alternative to Spring Security's OAuth2
+// client
+// * configuration.
+// */
+// @RestController
+// @RequestMapping("/oauth2")
+// @RequiredArgsConstructor
+// @Slf4j
+// public class OAuth2Controller {
 
     private final OAuth2AuthService oAuth2AuthService;
 
