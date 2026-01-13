@@ -48,8 +48,15 @@ public enum StatusCode {
     USER_NOT_FOUND(45300, "User not found", 453),
     CLIENT_NOT_FOUND(45302, "Client not found", 453),
     ADDRESS_NOT_FOUND(45303, "Address not found", 453),
+    CATEGORY_NOT_FOUND(45304, "Category not found", 453),
+    CATEGORY_NOT_ACTIVE(45305, "Category is not active", 453),
+
+    PRODUCT_NOT_FOUND(45306, "Product not found", 453),
+    PRODUCT_NOT_ACTIVE(45307, "Product is not active", 453),
+    PRODUCT_ALREADY_IN_CATEGORY(45308, "Product already in category", 453),
     // 500 Internal Server Error
     AUTHENTICATION_FAILED(50000, "Authentication failed", 500),
+    INTERNAL_SERVER_ERROR(50001, "Internal server error", 500),
 
     // 502 Bad Gateway
     BAD_GATEWAY(50200, "Bad gateway", 502),

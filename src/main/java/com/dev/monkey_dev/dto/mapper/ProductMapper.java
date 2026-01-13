@@ -3,6 +3,7 @@ package com.dev.monkey_dev.dto.mapper;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -22,24 +23,38 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
 
     // ---------- Response mapping ----------
     @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "categories", expression = "java(toCategorySummarySet(product.getCategories()))")
-    @Mapping(target = "images", ignore = true)
-    @Mapping(target = "variations", ignore = true)
+    @Mapping(target = "images", expression = "java(toImageDtoList(product.getImages()))")
+    @Mapping(target = "variations", expression = "java(toVariationDtoList(product.getVariations()))")
     ProductResponseDto toResponse(Products product);
 
     CategorySummaryDto toCategorySummary(Category category);
+
     ProductImageDto toImageDto(ProductImage image);
+
     ProductVariationDto toVariationDto(ProductVariation variation);
 
     default Set<CategorySummaryDto> toCategorySummarySet(Set<Category> categories) {
-        if (categories == null) return Set.of();
+        if (categories == null)
+            return Set.of();
         return categories.stream().map(this::toCategorySummary).collect(Collectors.toSet());
+    }
+
+    default List<ProductImageDto> toImageDtoList(List<ProductImage> images) {
+        if (images == null)
+            return List.of();
+        return images.stream().map(this::toImageDto).collect(Collectors.toList());
+    }
+
+    default List<ProductVariationDto> toVariationDtoList(List<ProductVariation> variations) {
+        if (variations == null)
+            return List.of();
+        return variations.stream().map(this::toVariationDto).collect(Collectors.toList());
     }
 
     // ---------- Create mapping (Request -> Entity) ----------

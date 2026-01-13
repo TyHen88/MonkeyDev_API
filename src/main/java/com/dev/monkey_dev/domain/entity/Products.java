@@ -9,8 +9,10 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
+import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,6 +41,12 @@ public class Products extends BaseEntity {
     @ManyToMany
     @JoinTable(name = "product_categories", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
     private Set<Category> categories;
+
+    @OneToMany(mappedBy = "product")
+    private List<ProductImage> images;
+
+    @OneToMany(mappedBy = "product")
+    private List<ProductVariation> variations;
 
     @Column(name = "slug", nullable = false)
     private String slug;

@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/wb/v1/categories")
 @RequiredArgsConstructor
 @Tag(name = "Category", description = "Category API")
-public class CateController extends BaseApiRestController{
+public class CateController extends BaseApiRestController {
 
     private final ICategoryService categoryService;
 
@@ -36,5 +36,54 @@ public class CateController extends BaseApiRestController{
         return success(response);
     }
 
-    
+    @Operation(summary = "Get category by ID", description = "Get a category by its ID")
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getCategoryById(@PathVariable Long id) {
+        CategorySummaryDto response = categoryService.getCategoryById(id);
+        return success(response);
+    }
+
+    @Operation(summary = "Update category", description = "Update a category")
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateCategory(@PathVariable Long id, @RequestBody CategoryRequestDto categoryRequestDto) {
+        categoryService.updateCategory(id, categoryRequestDto);
+        return successMessage("Category updated successfully");
+    }
+
+    @Operation(summary = "Delete category", description = "Delete a category")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCategory(@PathVariable Long id) {
+        categoryService.deleteCategory(id);
+        return successMessage("Category deleted successfully");
+    }
+
+    @Operation(summary = "Remove product from category", description = "Remove a product from a category")
+    @DeleteMapping("/{categoryId}/products/{productId}")
+    public ResponseEntity<?> removeProductFromCategory(@PathVariable Long categoryId, @PathVariable Long productId) {
+        categoryService.removeProductFromCategory(categoryId, productId);
+        return successMessage("Product removed from category successfully");
+    }
+
+    @Operation(summary = "Add product to category", description = "Add a product to a category")
+    @PostMapping("/{categoryId}/products/{productId}")
+    public ResponseEntity<?> addProductToCategory(@PathVariable Long categoryId, @PathVariable Long productId) {
+        categoryService.addProductToCategory(categoryId, productId);
+        return successMessage("Product added to category successfully");
+    }
+
+    @Operation(summary = "Bulk delete products from category", description = "Bulk delete products from a category")
+    @DeleteMapping("/{categoryId}/products/bulk-delete")
+    public ResponseEntity<?> bulkDeleteProductsFromCategory(@PathVariable Long categoryId,
+            @RequestBody List<Long> productIds) {
+        categoryService.bulkDeleteProductsFromCategory(categoryId, productIds);
+        return successMessage("Products deleted from category successfully");
+    }
+
+    @Operation(summary = "Bulk add products to category", description = "Bulk add products to a category")
+    @PostMapping("/{categoryId}/products/bulk-add")
+    public ResponseEntity<?> bulkAddProductsToCategory(@PathVariable Long categoryId,
+            @RequestBody List<Long> productIds) {
+        categoryService.bulkAddProductsToCategory(categoryId, productIds);
+        return successMessage("Products added to category successfully");
+    }
 }

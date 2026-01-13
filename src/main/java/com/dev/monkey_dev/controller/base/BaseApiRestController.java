@@ -14,8 +14,8 @@ public abstract class BaseApiRestController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(data));
     }
 
-    protected ResponseEntity<String> successMessage(String message) {
-        return ResponseEntity.ok(message);
+    protected ResponseEntity<ApiResponse<Object>> successMessage(String message) {
+        return ResponseEntity.ok(ApiResponse.successMessage(message));
     }
 
     protected ResponseEntity<ApiResponse<Object>> error(String message, HttpStatus status) {

@@ -1,6 +1,6 @@
 package com.dev.monkey_dev.service.product;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 import com.dev.monkey_dev.dto.request.CriteriaFilter;
 import com.dev.monkey_dev.dto.request.ProductCreateRequestDto;
@@ -9,11 +9,15 @@ import com.dev.monkey_dev.dto.request.ProductUpdateRequestDto;
 
 public interface IProductService {
     // Define service methods here
-    ProductResponseDto createProduct(ProductCreateRequestDto productCreateRequestDto);
+    void createProduct(ProductCreateRequestDto productCreateRequestDto);
 
-    ProductResponseDto updateProduct(Long productId, ProductUpdateRequestDto productUpdateRequestDto);
+    void updateProduct(Long productId, ProductUpdateRequestDto productUpdateRequestDto);
 
     ProductResponseDto getProductById(Long productId);
 
-    List<ProductResponseDto> getAllProducts(CriteriaFilter criteriaFilter);  
+    Page<ProductResponseDto> getAllProducts(String categorySlug, CriteriaFilter criteriaFilter);
+
+    void deleteProduct(Long productId);
+
+    ProductResponseDto getProductBySlug(String slug);
 }

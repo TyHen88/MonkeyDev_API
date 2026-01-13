@@ -4,9 +4,8 @@ import com.dev.monkey_dev.controller.base.BaseApiRestController;
 import com.dev.monkey_dev.dto.request.CriteriaFilter;
 import com.dev.monkey_dev.dto.request.UserAdminRequestDto;
 import com.dev.monkey_dev.dto.response.UserResponseDto;
-import com.dev.monkey_dev.common.Pagination;
+import com.dev.monkey_dev.common.PaginatedResponse;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
@@ -60,10 +59,8 @@ public class UserAdminController extends BaseApiRestController {
         // Get paginated users
         Page<UserResponseDto> usersPage = userService.getAllUsers(isActive, criteriaFilter);
 
-        // Build response with data and pagination
-        Map<String, Object> response = new HashMap<>();
-        response.put("data", usersPage.getContent());
-        response.put("pagination", new Pagination(usersPage));
+        // Build response with data and pagination using utility component
+        Map<String, Object> response = PaginatedResponse.of(usersPage);
 
         return success(response);
     }

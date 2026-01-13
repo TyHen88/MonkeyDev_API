@@ -1,7 +1,8 @@
 package com.dev.monkey_dev.controller;
 
-import java.util.List;
+import java.util.Map;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+import com.dev.monkey_dev.common.PaginatedResponse;
 import com.dev.monkey_dev.controller.base.BaseApiRestController;
 import com.dev.monkey_dev.dto.request.CriteriaFilter;
 import com.dev.monkey_dev.dto.request.ProductCreateRequestDto;
@@ -27,8 +29,8 @@ public class ProductController extends BaseApiRestController {
     @Operation(summary = "Create product", description = "Create a new product")
     @PostMapping
     public ResponseEntity<?> createProduct(@RequestBody ProductCreateRequestDto productCreateRequestDto) {
-        ProductResponseDto response = productService.createProduct(productCreateRequestDto);
-        return created(response);
+        productService.createProduct(productCreateRequestDto);
+        return successMessage("Product created successfully");
     }
 
     @Operation(summary = "Get product by ID", description = "Get a product by its ID")
@@ -41,6 +43,7 @@ public class ProductController extends BaseApiRestController {
     @Operation(summary = "Get all products", description = "Get all products with optional filters")
     @GetMapping
     public ResponseEntity<?> getAllProducts(
+            @RequestParam(value = "categorySlug", required = false) String categorySlug,
             @RequestParam(value = "search", required = false) String search,
             @RequestParam(value = "sort", required = false) String sort,
             @RequestParam(value = "page", required = false) Integer page,
@@ -52,8 +55,9 @@ public class ProductController extends BaseApiRestController {
                 .size(size)
                 .build();
 
-        List<ProductResponseDto> response = productService.getAllProducts(criteriaFilter);
-        return success(response);
+        Page<ProductResponseDto> productsPage = productService.getAllProducts(categorySlug, criteriaFilter);
+        Map<String, Object> responseMap = PaginatedResponse.of(productsPage);
+        return success(responseMap);
     }
 
     @Operation(summary = "Update product", description = "Update an existing product")
@@ -61,7 +65,21 @@ public class ProductController extends BaseApiRestController {
     public ResponseEntity<?> updateProduct(
             @PathVariable Long id,
             @RequestBody ProductUpdateRequestDto productUpdateRequestDto) {
-        ProductResponseDto response = productService.updateProduct(id, productUpdateRequestDto);
+        productService.updateProduct(id, productUpdateRequestDto);
+        return successMessage("Product updated successfully");
+    }
+
+    @Operation(summary = "Delete product", description = "Delete an existing product")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
+        productService.deleteProduct(id);
+        return successMessage("Product deleted successfully");
+    }
+
+    @Operation(summary = "Get product by slug", description = "Get a product by its slug")
+    @GetMapping("/slug/{slug}")
+    public ResponseEntity<?> getProductBySlug(@PathVariable String slug) {
+        ProductResponseDto response = productService.getProductBySlug(slug);
         return success(response);
     }
 }
