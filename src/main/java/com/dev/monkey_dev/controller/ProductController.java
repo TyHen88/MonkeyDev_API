@@ -17,6 +17,7 @@ import com.dev.monkey_dev.dto.request.ProductCreateRequestDto;
 import com.dev.monkey_dev.dto.request.ProductResponseDto;
 import com.dev.monkey_dev.dto.request.ProductUpdateRequestDto;
 import com.dev.monkey_dev.service.product.IProductService;
+import com.dev.monkey_dev.enums.FilterProductCateType;
 
 @RestController
 @RequestMapping("/api/wb/v1/products")
@@ -44,6 +45,7 @@ public class ProductController extends BaseApiRestController {
     @GetMapping
     public ResponseEntity<?> getAllProducts(
             @RequestParam(value = "categorySlug", required = false) String categorySlug,
+            @RequestParam(value = "filterProductCateType", required = false) FilterProductCateType filterProductCateType,
             @RequestParam(value = "search", required = false) String search,
             @RequestParam(value = "sort", required = false) String sort,
             @RequestParam(value = "page", required = false) Integer page,
@@ -55,7 +57,8 @@ public class ProductController extends BaseApiRestController {
                 .size(size)
                 .build();
 
-        Page<ProductResponseDto> productsPage = productService.getAllProducts(categorySlug, criteriaFilter);
+        Page<ProductResponseDto> productsPage = productService.getAllProducts(categorySlug, filterProductCateType,
+                criteriaFilter);
         Map<String, Object> responseMap = PaginatedResponse.of(productsPage);
         return success(responseMap);
     }

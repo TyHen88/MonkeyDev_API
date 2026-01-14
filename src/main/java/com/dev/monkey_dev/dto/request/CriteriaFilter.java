@@ -110,6 +110,11 @@ public class CriteriaFilter {
         String[] parts = sort.split(",");
         String field = parts[0].trim();
 
+        // Validate that field is not a direction keyword
+        if (field.equalsIgnoreCase("ASC") || field.equalsIgnoreCase("DESC")) {
+            return defaultSort != null ? defaultSort : Sort.unsorted();
+        }
+
         if (parts.length > 1) {
             String directionStr = parts[1].trim().toUpperCase();
             Sort.Direction direction = directionStr.equals("DESC")
@@ -139,6 +144,14 @@ public class CriteriaFilter {
 
         String[] parts = sort.split(",");
         String field = parts[0].trim();
+
+        // Validate that field is not a direction keyword
+        if (field.equalsIgnoreCase("ASC") || field.equalsIgnoreCase("DESC")) {
+            if (defaultSortField != null && !defaultSortField.trim().isEmpty()) {
+                return Sort.by(defaultDirection != null ? defaultDirection : Sort.Direction.ASC, defaultSortField);
+            }
+            return Sort.unsorted();
+        }
 
         if (parts.length > 1) {
             String directionStr = parts[1].trim().toUpperCase();

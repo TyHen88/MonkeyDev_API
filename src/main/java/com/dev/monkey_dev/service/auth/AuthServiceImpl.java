@@ -3,12 +3,15 @@ package com.dev.monkey_dev.service.auth;
 import com.dev.monkey_dev.common.password.PasswordEncryption;
 import com.dev.monkey_dev.config.UserAuthenticationProvider;
 import com.dev.monkey_dev.config.JwtUtil;
+import com.dev.monkey_dev.domain.entity.RefreshToken;
 import com.dev.monkey_dev.domain.entity.SecurityUser;
 import com.dev.monkey_dev.domain.entity.Users;
+import com.dev.monkey_dev.domain.respository.RefreshTokenRepository;
 import com.dev.monkey_dev.domain.respository.UserRepository;
 import com.dev.monkey_dev.exception.BusinessException;
 import com.dev.monkey_dev.common.api.StatusCode;
 import com.dev.monkey_dev.payload.auth.LoginRequest;
+import com.dev.monkey_dev.payload.auth.RefreshTokenRequest;
 import com.dev.monkey_dev.payload.auth.SetUpPasswordRequest;
 import com.dev.monkey_dev.payload.auth.UpdatePasswordRequest;
 import com.dev.monkey_dev.payload.auth.AuthResponse;
@@ -24,6 +27,8 @@ import org.springframework.security.core.Authentication;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.Instant;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -32,6 +37,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserAuthenticationProvider userAuthenticationProvider;
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final UserMapper userMapper;
     private final PasswordEncryption passwordEncryption;
 
@@ -56,11 +62,83 @@ public class AuthServiceImpl implements AuthService {
             throw new BusinessException(StatusCode.INACTIVE_USER, "User account is disabled");
         }
 
-        String token = jwtUtil.doGenerateToken(securityUser);
+        Users user = userRepository.findById(securityUser.getUserId())
+                .orElseThrow(() -> new BusinessException(StatusCode.USER_NOT_FOUND, "User not found"));
+
+        // Revoke all existing refresh tokens for this user (optional: for security)
+        refreshTokenRepository.revokeAllUserTokens(user);
+
+        // Generate access token
+        String accessToken = jwtUtil.doGenerateToken(securityUser);
+
+        // Generate and save refresh token
+        String refreshTokenString = jwtUtil.generateRefreshToken();
+        Instant expiresAt = jwtUtil.getRefreshTokenExpiration();
+
+        RefreshToken refreshToken = RefreshToken.builder()
+                .user(user)
+                .token(refreshTokenString)
+                .expiresAt(expiresAt)
+                .isRevoked(false)
+                .build();
+
+        refreshTokenRepository.save(refreshToken);
+
         return new AuthResponse(
-                token,
+                accessToken,
                 "Bearer",
-                jwtUtil.getExpireIn());
+                jwtUtil.getExpireIn(),
+                refreshTokenString);
+    }
+
+    @Override
+    @Transactional
+    public Object refreshToken(RefreshTokenRequest request) throws Throwable {
+        if (request.getRefreshToken() == null || request.getRefreshToken().trim().isEmpty()) {
+            throw new BusinessException(StatusCode.BAD_REQUEST, "Refresh token is required");
+        }
+
+        RefreshToken refreshToken = refreshTokenRepository.findByToken(request.getRefreshToken())
+                .orElseThrow(() -> new BusinessException(StatusCode.INVALID_REFRESH_TOKEN, "Invalid refresh token"));
+
+        if (!refreshToken.isValid()) {
+            throw new BusinessException(StatusCode.INVALID_REFRESH_TOKEN, "Refresh token is expired or revoked");
+        }
+
+        Users user = refreshToken.getUser();
+        if (!user.isActive()) {
+            throw new BusinessException(StatusCode.INACTIVE_USER, "User account is disabled");
+        }
+
+        // Create SecurityUser for token generation
+        SecurityUser securityUser = new SecurityUser(user);
+
+        // Generate new access token
+        String newAccessToken = jwtUtil.doGenerateToken(securityUser);
+
+        // Optionally rotate refresh token (for better security)
+        // Revoke old refresh token
+        refreshToken.setIsRevoked(true);
+        refreshTokenRepository.save(refreshToken);
+
+        // Generate new refresh token
+        String newRefreshTokenString = jwtUtil.generateRefreshToken();
+        Instant expiresAt = jwtUtil.getRefreshTokenExpiration();
+
+        RefreshToken newRefreshToken = RefreshToken.builder()
+                .user(user)
+                .token(newRefreshTokenString)
+                .expiresAt(expiresAt)
+                .isRevoked(false)
+                .build();
+
+        refreshTokenRepository.save(newRefreshToken);
+
+        return new AuthResponse(
+                newAccessToken,
+                "Bearer",
+                jwtUtil.getExpireIn(),
+                newRefreshTokenString);
     }
 
     @Override

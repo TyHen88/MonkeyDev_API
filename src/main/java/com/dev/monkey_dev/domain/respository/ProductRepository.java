@@ -13,9 +13,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ProductRepository extends JpaRepository<Products, Long> {
-    // Define repository methods here
-    @Query("SELECT p FROM Products p LEFT JOIN FETCH p.categories c WHERE (:categorySlug IS NULL OR c.slug = :categorySlug) AND p.isActive = true")
-    Page<Products> findAllByCategorySlug(@Param("categorySlug") String categorySlug, Pageable pageable);
+
+    @Query("SELECT DISTINCT p FROM Products p " +
+            "LEFT JOIN FETCH p.categories c " +
+            "WHERE p.isActive = true " +
+            "AND (:categorySlug IS NULL OR c.slug = :categorySlug) " +
+            "AND (:filterProductCateType IS NULL OR " +
+            "     (:filterProductCateType = 'ALL' AND SIZE(p.categories) > 0) OR " +
+            "     (:filterProductCateType = 'NO_CATEGORY' AND SIZE(p.categories) = 0))")
+    Page<Products> findAllByCategorySlug(@Param("categorySlug") String categorySlug,
+            @Param("filterProductCateType") String filterProductCateType, Pageable pageable);
 
     @Query("SELECT p FROM Products p WHERE p.slug = :slug AND p.isActive = true")
     Optional<Products> findBySlug(@Param("slug") String slug);

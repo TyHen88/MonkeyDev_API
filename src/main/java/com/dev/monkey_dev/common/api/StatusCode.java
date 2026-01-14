@@ -30,6 +30,7 @@ public enum StatusCode {
 
     // 401 Unauthorized
     UNAUTHORIZED(40100, "Unauthorized", 401),
+    INVALID_REFRESH_TOKEN(40101, "Invalid or expired refresh token", 401),
 
     // 403 Forbidden
     FORBIDDEN(40300, "Forbidden", 403),

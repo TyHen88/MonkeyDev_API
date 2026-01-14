@@ -10,6 +10,9 @@ import java.time.temporal.ChronoUnit;
  * Configuration properties for JWT settings.
  */
 @ConfigurationProperties(prefix = "jwt")
-public record JwtProperties(@DurationUnit(ChronoUnit.SECONDS) Duration expiration) {
+public record JwtProperties(
+        @DurationUnit(ChronoUnit.SECONDS) Duration expiration,
+        @DurationUnit(ChronoUnit.SECONDS) Duration refreshExpiration
+) {
 
 }

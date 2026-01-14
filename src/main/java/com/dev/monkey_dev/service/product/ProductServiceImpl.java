@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,7 @@ import com.dev.monkey_dev.dto.request.ProductImageCreateDto;
 import com.dev.monkey_dev.dto.request.ProductResponseDto;
 import com.dev.monkey_dev.dto.request.ProductUpdateRequestDto;
 import com.dev.monkey_dev.dto.request.ProductVariationCreateDto;
+import com.dev.monkey_dev.enums.FilterProductCateType;
 import com.dev.monkey_dev.exception.BusinessException;
 import com.dev.monkey_dev.exception.ResourceNotFoundException;
 import com.dev.monkey_dev.logging.AppLogManager;
@@ -223,7 +225,8 @@ public class ProductServiceImpl implements IProductService {
        }
 
        @Transactional(readOnly = true)
-       public Page<ProductResponseDto> getAllProducts(String categorySlug, CriteriaFilter criteriaFilter) {
+       public Page<ProductResponseDto> getAllProducts(String categorySlug, FilterProductCateType filterProductCateType,
+                     CriteriaFilter criteriaFilter) {
               try {
                      // Validate criteria filter
                      if (criteriaFilter == null) {
@@ -232,7 +235,9 @@ public class ProductServiceImpl implements IProductService {
                      }
 
                      List<ProductResponseDto> products = productRepository
-                                   .findAllByCategorySlug(categorySlug, criteriaFilter.toPageable())
+                                   .findAllByCategorySlug(categorySlug,
+                                                 filterProductCateType != null ? filterProductCateType.name() : null,
+                                                 criteriaFilter.toPageable("createdAt", Sort.Direction.DESC))
                                    .stream()
                                    .map(productMapper::toResponse)
                                    .toList();

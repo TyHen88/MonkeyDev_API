@@ -37,6 +37,10 @@ public class JwtUtil {
         return jwtConfig.expiration().getSeconds();
     }
 
+    public long getRefreshExpireIn() {
+        return jwtConfig.refreshExpiration().getSeconds();
+    }
+
     public long getResetTokenExpiration() {
         return resetTokenExpiration;
     }
@@ -144,6 +148,25 @@ public class JwtUtil {
             LoggerFactory.getLogger(JwtUtil.class).error("Invalid reset JWT token: {}", e.getMessage());
             return false;
         }
+    }
+
+    /**
+     * Generates a secure random refresh token string.
+     * This token will be stored in the database and used to obtain new access tokens.
+     * 
+     * @return A secure random token string
+     */
+    public String generateRefreshToken() {
+        return UUID.randomUUID().toString() + "-" + UUID.randomUUID().toString();
+    }
+
+    /**
+     * Gets the expiration time for refresh tokens.
+     * 
+     * @return Instant representing when the refresh token expires
+     */
+    public Instant getRefreshTokenExpiration() {
+        return Instant.now().plus(jwtConfig.refreshExpiration().getSeconds(), ChronoUnit.SECONDS);
     }
 
 }

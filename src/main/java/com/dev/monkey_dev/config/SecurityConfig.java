@@ -72,6 +72,7 @@ public class SecurityConfig {
                                                                 "/chat",
                                                                 "/auth/**",
                                                                 "/api/wb/v1/auth/login",
+                                                                "/api/wb/v1/auth/refresh",
                                                                 "/api/wb/v1/admin/users/register",
                                                                 "/api/wb/v1/auth/encrypt",
                                                                 "/api/wb/v1/password/**",

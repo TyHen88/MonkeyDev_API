@@ -4,7 +4,8 @@ spring:
   main:
     allow-circular-references: true
 jwt:
-  expiration: 86400000 # 24 hours in milliseconds
+  expiration: 86400 # 24 hours in seconds (access token)
+  refresh-expiration: 604800 # 7 days in seconds (refresh token)
 
 # RSA configuration is handled in profile-specific files
 rsa:
@@ -16,9 +17,8 @@ app:
     authorized-redirect-url: http://localhost:3333/oauth2/redirect
     google:
       client-id: ${GOOGLE_CLIENT_ID}
-      client-secret: ${GOOGLE_CLIENT_SECRET}  
+      client-secret: ${GOOGLE_CLIENT_SECRET}
       redirect-uri: http://localhost:8888/oauth2/callback/google
-
 
 springdoc:
   swagger-ui:
@@ -32,4 +32,3 @@ springdoc:
     disabled: true
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
-
