@@ -16,4 +16,6 @@ public interface IAddressService {
 
     List<AddressResponseDto> getAllAddresses();
 
+    void setPrimaryAddress(@NonNull Long id);
+
 }

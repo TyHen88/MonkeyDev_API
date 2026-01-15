@@ -1,5 +1,6 @@
 package com.dev.monkey_dev.domain.entity;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -68,6 +69,14 @@ public class Address extends BaseEntity {
     @Builder.Default
     @Column(name = "is_default", nullable = false)
     private Boolean isDefault = false;
+
+    @Column(name = "delete_at")
+    private Instant deleteAt;
+
+    public void isDeleted() {
+        this.deleteAt = Instant.now();
+    }
+
 
     public void deactivate() {
         this.isDefault = false;

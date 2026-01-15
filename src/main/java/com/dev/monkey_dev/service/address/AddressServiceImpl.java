@@ -3,6 +3,7 @@ package com.dev.monkey_dev.service.address;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +41,7 @@ public class AddressServiceImpl implements IAddressService {
 
     @Override
     @Transactional(readOnly = true)
-    public AddressResponseDto getAddressById(Long id) {
+    public AddressResponseDto getAddressById(@NonNull Long id) {
         Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(StatusCode.ADDRESS_NOT_FOUND));
         return addressMapper.toAddressResponseDto(address);
@@ -56,7 +57,19 @@ public class AddressServiceImpl implements IAddressService {
 
     @Override
     @Transactional
-    public AddressResponseDto updateAddress(Long id, AddressRequestDto addressRequestDto) {
+    public void setPrimaryAddress(@NonNull Long id) {
+        var addresses = addressRepository.findDefaultAddressByUserId(AuthHelper.getUserId());
+        addresses.forEach(address -> address.setIsDefault(false));
+        addressRepository.saveAll(addresses);
+        Address address = addressRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(StatusCode.ADDRESS_NOT_FOUND));
+        address.setIsDefault(true);
+        addressRepository.save(address);
+    }
+
+    @Override
+    @Transactional
+    public AddressResponseDto updateAddress(@NonNull Long id, AddressRequestDto addressRequestDto) {
         Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(StatusCode.ADDRESS_NOT_FOUND));
         address.setType(AddressType.valueOf(addressRequestDto.getType().toUpperCase()));
@@ -75,10 +88,10 @@ public class AddressServiceImpl implements IAddressService {
 
     @Override
     @Transactional
-    public void deleteAddress(Long id) {
+    public void deleteAddress(@NonNull Long id) {
         Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(StatusCode.ADDRESS_NOT_FOUND));
-        address.deactivate();
+        address.isDeleted();
         addressRepository.save(address);
     }
 }

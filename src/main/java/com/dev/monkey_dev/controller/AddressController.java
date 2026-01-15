@@ -35,7 +35,7 @@ public class AddressController extends BaseApiRestController {
         return success(response);
     }
 
-    @Operation(summary = "Get address by ID", description = "Get an address by its ID")
+    @Operation(summary = "Get all user addresses", description = "Get an address")
     @GetMapping("/all-addresses")
     public ResponseEntity<?> getUsersAddress() {
         var response = addressService.getAllAddresses();
@@ -54,6 +54,13 @@ public class AddressController extends BaseApiRestController {
     public ResponseEntity<?> deleteAddress(@PathVariable Long id) {
         addressService.deleteAddress(id);
         return successMessage("Address deleted successfully");
+    }
+
+    @Operation(summary = "Set primary address", description = "Set an address as primary for the user")
+    @PatchMapping("/{id}/is-primary")
+    public ResponseEntity<?> isPrimaryAddress(@PathVariable Long id) {
+        addressService.setPrimaryAddress(id);
+        return successMessage("Address set as primary successfully");
     }
 
 }

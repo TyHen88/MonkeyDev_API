@@ -10,6 +10,7 @@ import com.dev.monkey_dev.domain.respository.RefreshTokenRepository;
 import com.dev.monkey_dev.domain.respository.UserRepository;
 import com.dev.monkey_dev.exception.BusinessException;
 import com.dev.monkey_dev.common.api.StatusCode;
+import com.dev.monkey_dev.helper.AuthHelper;
 import com.dev.monkey_dev.payload.auth.LoginRequest;
 import com.dev.monkey_dev.payload.auth.RefreshTokenRequest;
 import com.dev.monkey_dev.payload.auth.SetUpPasswordRequest;
@@ -20,6 +21,7 @@ import com.dev.monkey_dev.dto.request.UserAdminRequestDto;
 import com.dev.monkey_dev.enums.AuthProvider;
 import com.dev.monkey_dev.enums.Roles;
 
+import com.dev.monkey_dev.util.PasswordUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.core.Authentication;
@@ -28,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +41,6 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final UserMapper userMapper;
     private final PasswordEncryption passwordEncryption;
 
     @Override
@@ -169,14 +171,56 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void setUpPassword(SetUpPasswordRequest request) throws Throwable {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setUpPassword'");
+        Long userId = AuthHelper.getUserId();
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(StatusCode.USER_NOT_FOUND));
+
+        // Validate that new password and confirm password match
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new BusinessException(StatusCode.BAD_REQUEST, "Password and confirm password do not match");
+        }
+
+        String rawPassword;
+        try {
+            rawPassword = passwordEncryption.getPassword(request.getNewPassword());
+        } catch (Exception e) {
+            throw new BusinessException(StatusCode.PASSWORD_ENCRYPTION_REQUIRED, e);
+        }
+        user.setPassword(rawPassword);
+        userRepository.save(user);
     }
 
     @Override
     @Transactional
     public void updatePassword(UpdatePasswordRequest request) throws Throwable {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updatePassword'");
+        Long userId = AuthHelper.getUserId();
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(StatusCode.USER_NOT_FOUND, "User not found"));
+
+        // Decrypt and verify old password
+        String decryptedOldPassword;
+        try {
+            decryptedOldPassword = PasswordUtils.decrypt(request.getOldPassword());
+        } catch (Exception e) {
+            throw new BusinessException(StatusCode.PASSWORD_ENCRYPTION_REQUIRED, "Failed to decrypt old password");
+        }
+
+        if (!passwordEncryption.verifyPassword(decryptedOldPassword, user.getPassword())) {
+            throw new BusinessException(StatusCode.INCORRECT_CURRENT_PASSWORD, "Current password is incorrect");
+        }
+
+        // Validate that new password and confirm password match
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new BusinessException(StatusCode.PASSWORD_MISMATCH, "New password and confirm password do not match");
+        }
+
+        String encryptedPassword;
+        try {
+            encryptedPassword = passwordEncryption.getPassword(request.getNewPassword());
+        } catch (Exception e) {
+            throw new BusinessException(StatusCode.PASSWORD_ENCRYPTION_REQUIRED);
+        }
+        user.setPassword(encryptedPassword);
+        userRepository.save(user);
     }
 }

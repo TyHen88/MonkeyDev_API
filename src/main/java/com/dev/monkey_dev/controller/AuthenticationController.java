@@ -2,6 +2,9 @@ package com.dev.monkey_dev.controller;
 
 import java.util.Map;
 
+import com.dev.monkey_dev.payload.auth.SetUpPasswordRequest;
+import com.dev.monkey_dev.payload.auth.UpdatePasswordRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.dev.monkey_dev.controller.base.BaseApiRestController;
@@ -28,7 +31,7 @@ public class AuthenticationController extends BaseApiRestController {
     /**
      * Authenticates the user and returns a JWT token if credentials are valid.
      *
-     * @param request the login request containing username/email and password
+     * @param payload the login request containing username/email and password
      * @return authentication response containing JWT and optionally a refresh token
      */
     @Operation(summary = "Login to receive JWT access token", description = "Authenticate user with credentials and retrieve JWT token for secured API access")
@@ -47,7 +50,8 @@ public class AuthenticationController extends BaseApiRestController {
      * Refreshes the access token using a valid refresh token.
      *
      * @param request the refresh token request containing the refresh token
-     * @return authentication response containing new JWT access token and refresh token
+     * @return authentication response containing new JWT access token and refresh
+     *         token
      */
     @Operation(summary = "Refresh access token", description = "Exchange a valid refresh token for a new access token and refresh token")
     @ApiResponses(value = {
@@ -66,4 +70,17 @@ public class AuthenticationController extends BaseApiRestController {
         var passwordEncrypted = PasswordUtils.encrypt(passwordValid);
         return successMessage(passwordEncrypted);
     }
+
+    @PatchMapping("/update-password")
+    public ResponseEntity<?> updatePassword(@RequestBody @Valid UpdatePasswordRequest request) throws Throwable {
+        authService.updatePassword(request);
+        return successMessage("Password updated successfully");
+    }
+
+    @PostMapping("/setup-password")
+    public ResponseEntity<?> setupPassword(@RequestBody @Valid SetUpPasswordRequest payload) throws Throwable {
+        authService.setUpPassword(payload);
+        return successMessage("Password setup successfully");
+    }
+
 }

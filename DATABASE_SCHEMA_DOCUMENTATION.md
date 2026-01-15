@@ -15,6 +15,7 @@ This document describes the complete relational database schema for the e-commer
 ### Core Entities
 
 #### Users
+
 - **Table**: `users`
 - **Purpose**: User accounts for both customers and sellers
 - **Key Fields**: id, full_name, username, email, password, role, is_active
@@ -29,6 +30,7 @@ This document describes the complete relational database schema for the e-commer
   - One-to-One: SellerProfile
 
 #### Products
+
 - **Table**: `products`
 - **Purpose**: Product catalog items
 - **Key Fields**: id, user_id (seller), slug, title, description, price, sku, currency, weight, dimensions, tax_rate
@@ -44,6 +46,7 @@ This document describes the complete relational database schema for the e-commer
   - One-to-Many: Wishlist
 
 #### Category
+
 - **Table**: `categories`
 - **Purpose**: Product categorization with hierarchical support
 - **Key Fields**: id, name, slug, description, parent_id
@@ -52,6 +55,7 @@ This document describes the complete relational database schema for the e-commer
   - Many-to-Many: Products
 
 #### ProductImage
+
 - **Table**: `product_images`
 - **Purpose**: Multiple images per product
 - **Key Fields**: id, product_id, image_url, alt_text, display_order, is_primary
@@ -59,6 +63,7 @@ This document describes the complete relational database schema for the e-commer
   - Many-to-One: Products
 
 #### ProductVariation
+
 - **Table**: `product_variations`
 - **Purpose**: Product variations (sizes, colors, etc.)
 - **Key Fields**: id, product_id, name, value, price_adjustment, sku, stock_quantity
@@ -69,6 +74,7 @@ This document describes the complete relational database schema for the e-commer
   - One-to-Many: OrderItem
 
 #### Inventory
+
 - **Table**: `inventory`
 - **Purpose**: Stock management with location tracking
 - **Key Fields**: id, product_id, product_variation_id, quantity, reserved_quantity, low_stock_threshold, location, version
@@ -80,6 +86,7 @@ This document describes the complete relational database schema for the e-commer
 ### Shopping & Order Entities
 
 #### ShoppingCart
+
 - **Table**: `shopping_carts`
 - **Purpose**: User shopping carts
 - **Key Fields**: id, user_id
@@ -88,6 +95,7 @@ This document describes the complete relational database schema for the e-commer
   - One-to-Many: CartItem
 
 #### CartItem
+
 - **Table**: `cart_items`
 - **Purpose**: Items in shopping cart
 - **Key Fields**: id, cart_id, product_id, product_variation_id, quantity, price_at_add
@@ -97,6 +105,7 @@ This document describes the complete relational database schema for the e-commer
   - Many-to-One: ProductVariation (nullable)
 
 #### Order
+
 - **Table**: `orders`
 - **Purpose**: Customer orders
 - **Key Fields**: id, user_id, order_number (unique), status, subtotal, tax_amount, shipping_cost, discount_amount, total_amount, currency, shipping_address_id, billing_address_id, payment_id, notes, ordered_at, version
@@ -111,6 +120,7 @@ This document describes the complete relational database schema for the e-commer
 - **Optimistic Locking**: Uses @Version for concurrent updates
 
 #### OrderItem
+
 - **Table**: `order_items`
 - **Purpose**: Order line items with product snapshots
 - **Key Fields**: id, order_id, product_id, product_variation_id, quantity, unit_price, total_price, product_snapshot (JSONB)
@@ -122,6 +132,7 @@ This document describes the complete relational database schema for the e-commer
 ### Address & Shipping
 
 #### Address
+
 - **Table**: `addresses`
 - **Purpose**: User shipping and billing addresses
 - **Key Fields**: id, user_id, type, full_name, phone, address_line1, address_line2, city, state, postal_code, country, is_default
@@ -133,6 +144,7 @@ This document describes the complete relational database schema for the e-commer
 ### Payment Entities
 
 #### Payment
+
 - **Table**: `payments`
 - **Purpose**: Payment records
 - **Key Fields**: id, order_id, payment_method, payment_status, transaction_id, amount, currency, payment_date, gateway_response (JSONB)
@@ -140,6 +152,7 @@ This document describes the complete relational database schema for the e-commer
   - One-to-One: Order
 
 #### SavedPaymentMethod
+
 - **Table**: `saved_payment_methods`
 - **Purpose**: User saved payment methods
 - **Key Fields**: id, user_id, type, last_four_digits, expiry_date, is_default, token (encrypted)
@@ -149,6 +162,7 @@ This document describes the complete relational database schema for the e-commer
 ### Reviews & Ratings
 
 #### ProductReview
+
 - **Table**: `product_reviews`
 - **Purpose**: Product reviews and ratings
 - **Key Fields**: id, product_id, user_id, order_id, rating (1-5), title, comment, is_verified_purchase, is_approved, helpful_count
@@ -160,6 +174,7 @@ This document describes the complete relational database schema for the e-commer
 ### Wishlist
 
 #### Wishlist
+
 - **Table**: `wishlists`
 - **Purpose**: User wishlists
 - **Key Fields**: id, user_id, product_id
@@ -171,6 +186,7 @@ This document describes the complete relational database schema for the e-commer
 ### Discounts & Coupons
 
 #### Coupon
+
 - **Table**: `coupons`
 - **Purpose**: Discount coupons
 - **Key Fields**: id, code (unique), description, discount_type, discount_value, min_purchase_amount, max_discount_amount, usage_limit, used_count, valid_from, valid_until, is_active
@@ -178,6 +194,7 @@ This document describes the complete relational database schema for the e-commer
   - One-to-Many: OrderCoupon
 
 #### OrderCoupon
+
 - **Table**: `order_coupons`
 - **Purpose**: Coupon usage tracking per order
 - **Key Fields**: id, order_id, coupon_id, discount_amount_applied
@@ -188,15 +205,28 @@ This document describes the complete relational database schema for the e-commer
 ### Seller Profile
 
 #### SellerProfile
+
 - **Table**: `seller_profiles`
 - **Purpose**: Extended seller information
-- **Key Fields**: id, user_id (unique), store_name, store_description, store_logo_url, seller_rating, total_sales, is_verified_seller, business_registration_number
+- **Key Fields**: id, user_id (unique), store_name, store_description, store_logo_url, store_banner_url, seller_rating, total_reviews, total_sales, is_verified_seller, business_registration_number, business_address, contact_phone, contact_email, established_date, return_policy, shipping_policy, is_active, verification_date
 - **Relationships**:
   - One-to-One: Users
+- **Additional Fields**:
+  - `store_banner_url` - URL for store banner image
+  - `total_reviews` - Count of total reviews received
+  - `business_address` - Physical business address
+  - `contact_phone` - Primary contact phone number
+  - `contact_email` - Business contact email
+  - `established_date` - When the business was established
+  - `return_policy` - Store's return policy
+  - `shipping_policy` - Store's shipping policy
+  - `is_active` - Whether the seller profile is active
+  - `verification_date` - When seller was verified
 
 ## Entity Relationships Summary
 
 ### One-to-Many Relationships
+
 - Users → Products (seller)
 - Users → Orders
 - Users → Addresses
@@ -222,15 +252,18 @@ This document describes the complete relational database schema for the e-commer
 - Coupon → OrderCoupon
 
 ### Many-to-Many Relationships
+
 - Products ↔ Categories (via `product_categories` junction table)
 
 ### One-to-One Relationships
+
 - Users ↔ SellerProfile
 - Order ↔ Payment
 
 ## Constraints
 
 ### Unique Constraints
+
 - `users.username` - Unique username
 - `users.email` - Unique email
 - `products.slug` - Unique product slug
@@ -240,12 +273,15 @@ This document describes the complete relational database schema for the e-commer
 - `seller_profiles.user_id` - One seller profile per user
 
 ### Foreign Key Constraints
+
 All foreign key relationships are enforced with appropriate cascade rules:
+
 - Most relationships use RESTRICT on delete to prevent accidental data loss
 - Order → OrderItem: Cascade delete (when order is deleted, items are deleted)
 - ShoppingCart → CartItem: Cascade delete (when cart is deleted, items are deleted)
 
 ### Check Constraints (Recommended for PostgreSQL)
+
 - `products.price >= 0` - Price must be non-negative
 - `order_items.quantity > 0` - Quantity must be positive
 - `product_reviews.rating BETWEEN 1 AND 5` - Rating must be 1-5
@@ -258,9 +294,11 @@ All foreign key relationships are enforced with appropriate cascade rules:
 ### Indexes
 
 #### Primary Indexes (Automatic)
+
 All tables have primary key indexes on `id` column.
 
 #### Unique Indexes
+
 - `uk_users_username` on `users(username)`
 - `uk_users_email` on `users(email)`
 - `uk_product_slug` on `products(slug)`
@@ -270,6 +308,7 @@ All tables have primary key indexes on `id` column.
 - `uk_seller_profile_user` on `seller_profiles(user_id)`
 
 #### Performance Indexes (Recommended)
+
 ```sql
 -- Products
 CREATE INDEX idx_products_user_id ON products(user_id);
@@ -314,20 +353,25 @@ CREATE INDEX idx_order_items_product_id ON order_items(product_id);
 ### Data Types
 
 #### Monetary Values
+
 - Use `DECIMAL(10,2)` for all price, amount, and cost fields
 - Examples: `products.price`, `orders.subtotal`, `payments.amount`
 
 #### Text Fields
+
 - Use `VARCHAR` with appropriate length limits
 - Use `TEXT` for longer content (descriptions, comments)
 
 #### JSONB Fields
+
 - `order_items.product_snapshot` - JSONB for product data snapshot at order time
 - `payments.gateway_response` - JSONB for payment gateway response data
 
 #### Enum Types
+
 - All status and type fields use `VARCHAR` with enum constraints in Java
 - PostgreSQL enum types can be created for better type safety:
+
 ```sql
 CREATE TYPE order_status AS ENUM ('PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED');
 CREATE TYPE payment_status AS ENUM ('PENDING', 'PROCESSING', 'COMPLETED', 'FAILED', 'REFUNDED', 'CANCELLED');
@@ -337,6 +381,7 @@ CREATE TYPE discount_type AS ENUM ('PERCENTAGE', 'FIXED_AMOUNT');
 ```
 
 #### Timestamps
+
 - Use `TIMESTAMP WITH TIME ZONE` for all date/time fields
 - JPA `LocalDateTime` maps to `TIMESTAMP` (consider using `OffsetDateTime` for timezone support)
 
@@ -345,18 +390,22 @@ CREATE TYPE discount_type AS ENUM ('PERCENTAGE', 'FIXED_AMOUNT');
 For high-volume tables, consider partitioning:
 
 #### Orders Table
+
 - Partition by `ordered_at` (monthly or quarterly)
 - Example: `orders_2024_q1`, `orders_2024_q2`, etc.
 
 #### Order Items Table
+
 - Partition by order date (aligned with orders table)
 
 #### Product Reviews Table
+
 - Partition by `created_at` (yearly)
 
 ### Full-Text Search
 
 For product search, consider adding full-text search indexes:
+
 ```sql
 -- Add full-text search on products
 ALTER TABLE products ADD COLUMN search_vector tsvector;
@@ -380,6 +429,7 @@ CREATE TRIGGER products_search_vector_trigger
 ## Audit Fields
 
 All entities extend `BaseEntity` which provides:
+
 - `created_at` - Timestamp of creation (auto-populated)
 - `updated_at` - Timestamp of last update (auto-populated)
 
@@ -388,6 +438,7 @@ These are managed by JPA `@EntityListeners(AuditingEntityListener.class)`.
 ## Optimistic Locking
 
 The following entities use `@Version` for optimistic locking:
+
 - `Inventory` - Prevents concurrent stock updates
 - `Order` - Prevents concurrent order modifications
 
@@ -398,8 +449,9 @@ The following entities use `@Version` for optimistic locking:
 When migrating the existing `products` table:
 
 1. **Add new columns**:
+
    ```sql
-   ALTER TABLE products 
+   ALTER TABLE products
      ADD COLUMN sku VARCHAR(100),
      ADD COLUMN currency VARCHAR(3) DEFAULT 'USD' NOT NULL,
      ADD COLUMN weight DECIMAL(10,2),
@@ -410,20 +462,22 @@ When migrating the existing `products` table:
    ```
 
 2. **Update price column**:
+
    ```sql
-   ALTER TABLE products 
+   ALTER TABLE products
      ALTER COLUMN price TYPE DECIMAL(10,2);
    ```
 
 3. **Add unique constraint on slug**:
    ```sql
-   ALTER TABLE products 
+   ALTER TABLE products
      ADD CONSTRAINT uk_product_slug UNIQUE (slug);
    ```
 
 ### Data Integrity
 
 1. **Backfill default values**:
+
    ```sql
    UPDATE products SET currency = 'USD' WHERE currency IS NULL;
    UPDATE products SET is_active = true WHERE is_active IS NULL;
@@ -452,15 +506,18 @@ When migrating the existing `products` table:
 ## Security Considerations
 
 1. **Encrypt sensitive data**:
+
    - `saved_payment_methods.token` - Payment tokens must be encrypted
    - `users.password` - Already handled by Spring Security
 
 2. **Access control**:
+
    - Users can only modify their own orders, carts, and addresses
    - Sellers can only modify their own products
    - Admins have full access
 
 3. **SQL injection prevention**:
+
    - Always use parameterized queries (JPA handles this)
    - Never concatenate user input into SQL
 
@@ -484,4 +541,3 @@ When migrating the existing `products` table:
 3. **Vacuum regularly**: Run `VACUUM ANALYZE` regularly for optimal performance
 4. **Backup strategy**: Implement regular backups with point-in-time recovery
 5. **Replication lag**: Monitor replication lag if using read replicas
-

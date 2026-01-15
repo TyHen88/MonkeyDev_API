@@ -2,7 +2,8 @@ package com.dev.monkey_dev.enums;
 
 public enum Roles {
     ADMIN("Administrator"),
-    USER("User");
+    USER("User"),
+    SELLER("Seller");
 
     private final String displayName;
 

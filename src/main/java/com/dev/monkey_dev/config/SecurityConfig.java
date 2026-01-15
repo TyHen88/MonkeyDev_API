@@ -105,7 +105,7 @@ public class SecurityConfig {
                                                 .requestMatchers(
                                                                 "/api/wb/v1/user/**",
                                                                 "/api/wb/v1/auth/encrypt")
-                                                .hasAnyRole("USER", "ADMIN")
+                                                .hasAnyRole("USER", "SELLER", "ADMIN")
                                                 // All others require authentication
                                                 .anyRequest().authenticated())
                                 .exceptionHandling(exceptionHandling -> exceptionHandling

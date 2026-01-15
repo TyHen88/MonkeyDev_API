@@ -97,11 +97,4 @@ public class Users extends BaseEntity {
         this.active = false;
     }
 
-    public void setRole(Roles role) {
-        this.role = role;
-    }
-
-    public Roles getRole() {
-        return role;
-    }
 }
