@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import java.util.List;
 
 @Getter
 @Setter
@@ -24,5 +25,6 @@ public class UserAdminRequestDto {
     @NotBlank(message = "Password is required")
     private String password;
     private String role;
+    private List<String> roles;
     private Boolean active;
 }

@@ -2,6 +2,7 @@ package com.dev.monkey_dev.config;
 
 import com.dev.monkey_dev.domain.entity.SecurityUser;
 import com.dev.monkey_dev.domain.entity.Users;
+import com.dev.monkey_dev.domain.respository.UserRepository;
 import com.dev.monkey_dev.service.auth.OAuth2UserPrincipal;
 
 import jakarta.servlet.ServletException;
@@ -22,9 +23,11 @@ import java.io.IOException;
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
-    public OAuth2AuthenticationSuccessHandler(@Lazy JwtUtil jwtUtil) {
+    public OAuth2AuthenticationSuccessHandler(@Lazy JwtUtil jwtUtil, UserRepository userRepository) {
         this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
     }
 
     @Value("${app.oauth2.authorized-redirect-url:http://localhost:3333/oauth2/redirect}")
@@ -51,9 +54,10 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         // Get the authenticated user
         OAuth2UserPrincipal oAuth2UserPrincipal = (OAuth2UserPrincipal) authentication.getPrincipal();
         Users user = oAuth2UserPrincipal.getUser();
+        Users tokenUser = userRepository.findWithRolesById(user.getId()).orElse(user);
 
         // Create SecurityUser for token generation
-        SecurityUser securityUser = new SecurityUser(user);
+        SecurityUser securityUser = new SecurityUser(tokenUser);
 
         // Generate JWT token
         String token = jwtUtil.doGenerateToken(securityUser);

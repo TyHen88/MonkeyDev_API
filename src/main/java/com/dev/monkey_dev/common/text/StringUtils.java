@@ -1,4 +1,4 @@
-package com.dev.monkey_dev.util;
+package com.dev.monkey_dev.common.text;
 
 import java.text.Normalizer;
 

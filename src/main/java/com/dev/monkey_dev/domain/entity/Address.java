@@ -39,7 +39,7 @@ public class Address extends BaseEntity {
     private Users user;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
+    @Column(name = "type", nullable = false, length = 50)
     private AddressType type;
 
     @Column(name = "full_name", nullable = false, length = 150)

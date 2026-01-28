@@ -5,7 +5,7 @@ import java.text.MessageFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dev.monkey_dev.util.StringUtils;
+import com.dev.monkey_dev.common.text.StringUtils;
 
 /**
  * Centralized logging manager for the application.

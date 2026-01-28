@@ -13,6 +13,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,10 +41,11 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
 
-    @Column(name = "order_number", nullable = false)
+    @Column(name = "order_number", nullable = false, length = 100)
     private String orderNumber; // e.g. "ORD-1234567890"
 
-    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 50)
     private OrderStatus status; // e.g. PENDING, PROCESSING, SHIPPED, DELIVERED, CANCELLED, REFUNDED
 
     @Column(name = "subtotal", nullable = false, precision = 10, scale = 2)

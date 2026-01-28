@@ -2,7 +2,7 @@ package com.dev.monkey_dev.config;
 
 import com.dev.monkey_dev.common.api.ApiResponse;
 import com.dev.monkey_dev.common.api.StatusCode;
-import com.dev.monkey_dev.util.ObjectUtils;
+import com.dev.monkey_dev.common.serialization.JsonUtils;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,7 +29,7 @@ public class UnauthorizedHandler implements AuthenticationEntryPoint {
             ApiResponse<Object> apiResponse = ApiResponse.error(StatusCode.UNAUTHORIZED.getMessage(),
                     StatusCode.UNAUTHORIZED.getHttpStatus());
 
-            res.getBody().write(ObjectUtils.writeValueAsString(apiResponse).getBytes());
+            res.getBody().write(JsonUtils.writeValueAsString(apiResponse).getBytes());
         }
     }
 }

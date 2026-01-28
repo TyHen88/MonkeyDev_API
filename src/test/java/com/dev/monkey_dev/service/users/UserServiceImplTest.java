@@ -35,8 +35,10 @@ import org.springframework.data.domain.Pageable;
 
 import com.dev.monkey_dev.common.api.StatusCode;
 import com.dev.monkey_dev.domain.entity.Address;
+import com.dev.monkey_dev.domain.entity.Role;
 import com.dev.monkey_dev.domain.entity.Users;
 import com.dev.monkey_dev.domain.respository.AddressRepository;
+import com.dev.monkey_dev.domain.respository.RoleRepository;
 import com.dev.monkey_dev.domain.respository.UserRepository;
 import com.dev.monkey_dev.dto.mapper.UserMapper;
 import com.dev.monkey_dev.dto.request.CriteriaFilter;
@@ -91,6 +93,9 @@ class UserServiceImplTest {
         @Mock
         private AddressRepository addressRepository;
 
+        @Mock
+        private RoleRepository roleRepository;
+
         // InjectMocks creates an instance of UserServiceImpl and injects the mocks
         // above
         @InjectMocks
@@ -136,6 +141,8 @@ class UserServiceImplTest {
                 when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.empty());
                 when(userRepository.findByUsername("johndoe")).thenReturn(new ArrayList<>());
                 when(userMapper.toUserEntity(requestDto)).thenReturn(userEntity);
+                when(roleRepository.findAllByNameIn(eq(java.util.Set.of("USER"))))
+                                .thenReturn(List.of(Role.builder().id(1L).name("USER").build()));
                 when(userRepository.save(userEntity)).thenReturn(savedUser);
                 when(userMapper.toUserResponseDto(savedUser)).thenReturn(expectedResponse);
 

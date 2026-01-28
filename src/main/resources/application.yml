@@ -1,13 +1,97 @@
+server:
+  port: 8888
+
 spring:
   profiles:
     active: local
+
+  output:
+    ansi:
+      enabled: always
+      console-available: true
+
   main:
     allow-circular-references: true
-jwt:
-  expiration: 86400 # 24 hours in seconds (access token)
-  refresh-expiration: 604800 # 7 days in seconds (refresh token)
+    allow-bean-definition-overriding: true
 
-# RSA configuration is handled in profile-specific files
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: psql@ty8080
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 10
+      minimum-idle: 5
+
+  sql:
+    init:
+      mode: never
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        "[format_sql]": "true"
+        "[highlight_sql]": "true"
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          lob:
+            "[non_contextual_creation]": "true"
+      javax:
+        persistence:
+          schema-generation:
+            database:
+              action: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+  cache:
+    type: redis
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 2
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 2000
+          max-attempts: 5
+          max-interval: 10000
+          multiplier: 2
+        prefetch: 10
+
+# JWT Configuration (merged)
+jwt:
+  issuer: monkey-dev
+  secret: mySecretKey
+  expiration: 86400000      # 24 hours in milliseconds (access token)
+  refresh-expiration: 604800000 # 7 days in milliseconds (refresh token)
+  expirationMs: 86400000    # kept for backward compatibility if your code uses it
+
+# RSA configuration (kept)
 rsa:
   public-key: classpath:certs/public-key.pem
   private-key: classpath:certs/private-key.pem
@@ -19,6 +103,14 @@ app:
       client-id: ${GOOGLE_CLIENT_ID}
       client-secret: ${GOOGLE_CLIENT_SECRET}
       redirect-uri: http://localhost:8888/oauth2/callback/google
+  rabbitmq:
+    audit:
+      exchange: audit.logs.exchange
+      queue: audit.logs.queue
+      routing-key: audit.logs
+  audit:
+    retention-days: 90
+    cleanup-cron: "0 0 2 * * *"
 
 springdoc:
   swagger-ui:
@@ -32,3 +124,48 @@ springdoc:
     disabled: true
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
+
+# JSONB Configuration
+json:
+  mapping:
+    pretty-print: true
+
+# Password Encryption
+password:
+  encryption:
+    key: mytestkeyasdddds
+
+# Application URLs
+web-url: http://localhost:3333
+
+# ABA PayWay Configuration
+payway:
+  base-url: https://checkout-sandbox.payway.com.kh
+  merchant-id: ${PAYWAY_MERCHANT_ID:ec463545}
+  api-key: ${PAYWAY_API_KEY:db77dc75a5e54f35ab1a22d6ad8b7105080b4a8d}
+  return-url: ${PAYWAY_RETURN_URL:http://localhost:8888/api/wb/v1/payments/payway/return}
+  cancel-url: ${PAYWAY_CANCEL_URL:http://localhost:3333/payment/cancel}
+  continue-success-url: ${PAYWAY_SUCCESS_URL:http://localhost:3333/payment/success}
+  default-currency: USD
+  verify-on-callback: true
+  create-hash-fields:
+    - req_time
+    - merchant_id
+    - tran_id
+    - amount
+    - currency
+
+# Logging Configuration
+logging:
+  level:
+    root: info
+    org.hibernate: info
+    org.hibernate.SQL: debug
+
+# File Storage Configuration
+file:
+  server-path: D:/upload-files/ || /home/henty/upload-files/
+  client-path: /api/wb/v1/image
+  temp-path: ${file.server-path}/temp_qr
+  base-url: http://localhost:8888${file.client-path}
+  base-image-url: http://localhost:8888

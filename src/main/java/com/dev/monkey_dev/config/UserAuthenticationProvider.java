@@ -2,7 +2,7 @@ package com.dev.monkey_dev.config;
 
 import com.dev.monkey_dev.common.api.StatusCode;
 import com.dev.monkey_dev.exception.BusinessException;
-import com.dev.monkey_dev.util.PasswordUtils;
+import com.dev.monkey_dev.common.crypto.PasswordCipher;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,7 +23,7 @@ public class UserAuthenticationProvider {
     // Not having access to the user’s password
     public Authentication authenticate(String username, String password) throws Exception {
         try {
-            var rawPwd = PasswordUtils.decrypt(password);
+            var rawPwd = PasswordCipher.decrypt(password);
             return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, rawPwd));
         } catch (UsernameNotFoundException ex) {
             throw new BusinessException(StatusCode.USER_NOT_FOUND, ex.getMessage());

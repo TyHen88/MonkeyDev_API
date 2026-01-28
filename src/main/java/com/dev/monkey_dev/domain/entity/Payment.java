@@ -42,11 +42,11 @@ public class Payment extends BaseEntity {
     private Order order;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_method", nullable = false)
+    @Column(name = "payment_method", nullable = false, length = 50)
     private PaymentMethod paymentMethod;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_status", nullable = false)
+    @Column(name = "payment_status", nullable = false, length = 50)
     private PaymentStatus paymentStatus;
 
     @Column(name = "transaction_id", length = 255)

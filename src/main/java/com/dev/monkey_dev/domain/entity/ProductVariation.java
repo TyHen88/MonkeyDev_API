@@ -32,16 +32,16 @@ public class ProductVariation extends BaseEntity {
     @JoinColumn(name = "product_id", nullable = false)
     private Products product;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, length = 100)
     private String name; // e.g. "Size", "Color"
 
-    @Column(name = "value", nullable = false)
+    @Column(name = "value", nullable = false, length = 100)
     private String value; // e.g. "Large", "Red"
 
-    @Column(name = "price_adjustment", nullable = false)
-    private Double priceAdjustment; // e.g. 10.00
+    @Column(name = "price_adjustment", nullable = false, precision = 10, scale = 2)
+    private java.math.BigDecimal priceAdjustment; // e.g. 10.00
 
-    @Column(name = "sku", nullable = false)
+    @Column(name = "sku", length = 100)
     private String sku; // e.g. "1234567890" or "RED-L-10"
 
     @Column(name = "stock_quantity", nullable = false)

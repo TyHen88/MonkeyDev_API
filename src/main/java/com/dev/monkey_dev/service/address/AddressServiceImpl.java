@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class AddressServiceImpl implements IAddressService {
     private final AddressRepository addressRepository;
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public AddressResponseDto createAddress(AddressRequestDto addressRequestDto) {
         Address address = addressMapper.toAddressEntity(addressRequestDto);
         Long userId = AuthHelper.getUserId();
@@ -40,13 +41,15 @@ public class AddressServiceImpl implements IAddressService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public AddressResponseDto getAddressById(@NonNull Long id) {
         Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(StatusCode.ADDRESS_NOT_FOUND));
         return addressMapper.toAddressResponseDto(address);
     }
 
+    @Override
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<AddressResponseDto> getAllAddresses() {
         Long userId = AuthHelper.getUserId();
         List<Address> addresses = addressRepository.findDefaultAddressByUserId(userId);
@@ -56,7 +59,7 @@ public class AddressServiceImpl implements IAddressService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void setPrimaryAddress(@NonNull Long id) {
         var addresses = addressRepository.findDefaultAddressByUserId(AuthHelper.getUserId());
         addresses.forEach(address -> address.setIsDefault(false));
@@ -68,7 +71,7 @@ public class AddressServiceImpl implements IAddressService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public AddressResponseDto updateAddress(@NonNull Long id, AddressRequestDto addressRequestDto) {
         Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(StatusCode.ADDRESS_NOT_FOUND));
@@ -87,7 +90,7 @@ public class AddressServiceImpl implements IAddressService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void deleteAddress(@NonNull Long id) {
         Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(StatusCode.ADDRESS_NOT_FOUND));

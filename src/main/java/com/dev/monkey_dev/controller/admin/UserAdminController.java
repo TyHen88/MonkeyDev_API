@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import com.dev.monkey_dev.service.auth.AuthService;
 import com.dev.monkey_dev.service.users.IUserService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/wb/v1/admin/users")
@@ -39,7 +40,7 @@ public class UserAdminController extends BaseApiRestController {
      * @return paginated list of users
      */
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN_MANAGE')")
     @Operation(summary = "Get all users with filtering, pagination, and sorting", description = "Get all users with filtering, pagination, and sorting")
     public ResponseEntity<?> getAllUsers(
             @RequestParam(value = "isActive", required = false) Boolean isActive,
@@ -72,9 +73,9 @@ public class UserAdminController extends BaseApiRestController {
      * @return created user
      */
     @PostMapping("/register")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasAuthority('ADMIN_MANAGE')")
     @Operation(summary = "Create a new user with role assignment (Admin only)", description = "Create a new user with role assignment (Admin only)")
-    public ResponseEntity<?> createUser(@RequestBody UserAdminRequestDto userAdminRequestDto) {
+    public ResponseEntity<?> createUser(@RequestBody @Valid UserAdminRequestDto userAdminRequestDto) {
         try {
             authService.registerUser(userAdminRequestDto);
             return successMessage("User created successfully");
@@ -91,6 +92,7 @@ public class UserAdminController extends BaseApiRestController {
      */
     @Operation(summary = "true/false", description = "true: activate, false: deactivate")
     @PutMapping("/update-status/{id}/{status}")
+    @PreAuthorize("hasAuthority('ADMIN_MANAGE')")
     public ResponseEntity<?> updateUserStatus(@PathVariable("id") Long id, @PathVariable("status") Boolean status) {
         userService.updateUserStatus(id, status);
         return successMessage("User status updated successfully");

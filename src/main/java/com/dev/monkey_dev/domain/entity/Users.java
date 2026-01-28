@@ -2,7 +2,6 @@ package com.dev.monkey_dev.domain.entity;
 
 import com.dev.monkey_dev.enums.AuthProvider;
 
-import com.dev.monkey_dev.enums.Roles;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -15,6 +14,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Users entity.
@@ -37,8 +38,8 @@ import lombok.ToString;
 @Builder
 @Getter
 @Setter
-@ToString(exclude = "password")
-@EqualsAndHashCode(callSuper = true)
+@ToString(exclude = { "password", "roles" })
+@EqualsAndHashCode(callSuper = true, exclude = "roles")
 public class Users extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -70,17 +71,21 @@ public class Users extends BaseEntity {
     //
     private String password;
 
-    @Column(name = "profile_image_url")
+    @Column(name = "profile_image_url", length = 500)
     private String profileImageUrl;
 
-    @Column(name = "auth_provider")
+    @Column(name = "auth_provider", length = 50)
     @Enumerated(EnumType.STRING)
     private AuthProvider authProvider;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role")
     @Builder.Default
-    private Roles role = Roles.USER;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JsonIgnore
+    private Set<Role> roles = new HashSet<>();
 
     // Name the field 'active' (maps to is_active column) so Lombok generates a
     // natural isActive() getter.

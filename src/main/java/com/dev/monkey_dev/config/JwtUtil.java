@@ -1,7 +1,6 @@
 package com.dev.monkey_dev.config;
 
 import com.dev.monkey_dev.domain.entity.SecurityUser;
-import com.dev.monkey_dev.enums.Roles;
 import com.dev.monkey_dev.properties.JwtProperties;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -84,9 +83,11 @@ public class JwtUtil {
         claims.put("id", Objects.requireNonNull(securityUser.getUserId(), "User ID cannot be null"));
         claims.put("username", Objects.requireNonNull(securityUser.getUsername(), "Username cannot be null"));
 
-        // Add role to claims
-        String role = securityUser.getRole();
-        claims.put("role", role);
+        // Add roles and permissions to claims
+        String primaryRole = securityUser.getRole();
+        claims.put("role", primaryRole);
+        claims.put("roles", securityUser.getRoles());
+        claims.put("permissions", securityUser.getPermissions());
 
         // Note: We do not populate the "scope" claim here because:
         // 1. SecurityUser.getAuthorities() returns role-based authorities (e.g.,
@@ -100,7 +101,7 @@ public class JwtUtil {
 
         JwtClaimsSet jwtClaimsSet = JwtClaimsSet.builder()
                 .subject(securityUser.getUsername())
-                .issuer(Roles.USER.name()) // Assuming issuer is the role of the user
+                .issuer(jwtConfig.issuer() != null ? jwtConfig.issuer() : "monkey-dev")
                 .claims(c -> c.putAll(claims))
                 .issuedAt(instant)
                 .expiresAt(instant.plus(jwtConfig.expiration().getSeconds(), ChronoUnit.SECONDS))

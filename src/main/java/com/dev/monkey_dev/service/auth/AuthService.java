@@ -3,6 +3,7 @@ package com.dev.monkey_dev.service.auth;
 import com.dev.monkey_dev.dto.request.UserAdminRequestDto;
 import com.dev.monkey_dev.payload.auth.LoginRequest;
 import com.dev.monkey_dev.payload.auth.RefreshTokenRequest;
+import com.dev.monkey_dev.payload.auth.ResetPasswordRequest;
 import com.dev.monkey_dev.payload.auth.SetUpPasswordRequest;
 import com.dev.monkey_dev.payload.auth.UpdatePasswordRequest;
 
@@ -17,4 +18,12 @@ public interface AuthService {
     void setUpPassword(SetUpPasswordRequest request) throws Throwable;
 
     void updatePassword(UpdatePasswordRequest request) throws Throwable;
+
+    String forgotPassword(String email) throws Throwable;
+
+    void resetPassword(ResetPasswordRequest request) throws Throwable;
+
+    String encryptPassword(String payload) throws Throwable;
+
+    String generatePassword(int length);
 }

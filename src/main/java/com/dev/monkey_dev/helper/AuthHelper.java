@@ -36,4 +36,22 @@ public class AuthHelper {
         Jwt jwt = getJwt();
         return jwt.getClaimAsString("role");
     }
+
+    public static java.util.List<String> getRoles() {
+        Jwt jwt = getJwt();
+        Object roles = jwt.getClaim("roles");
+        if (roles instanceof java.util.Collection<?> collection) {
+            return collection.stream().map(String::valueOf).toList();
+        }
+        return java.util.List.of();
+    }
+
+    public static java.util.List<String> getPermissions() {
+        Jwt jwt = getJwt();
+        Object permissions = jwt.getClaim("permissions");
+        if (permissions instanceof java.util.Collection<?> collection) {
+            return collection.stream().map(String::valueOf).toList();
+        }
+        return java.util.List.of();
+    }
 }

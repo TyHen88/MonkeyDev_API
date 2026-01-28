@@ -11,6 +11,7 @@ import java.time.temporal.ChronoUnit;
  */
 @ConfigurationProperties(prefix = "jwt")
 public record JwtProperties(
+        String issuer,
         @DurationUnit(ChronoUnit.SECONDS) Duration expiration,
         @DurationUnit(ChronoUnit.SECONDS) Duration refreshExpiration
 ) {

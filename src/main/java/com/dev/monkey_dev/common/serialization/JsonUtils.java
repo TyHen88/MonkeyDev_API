@@ -1,4 +1,4 @@
-package com.dev.monkey_dev.util;
+package com.dev.monkey_dev.common.serialization;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -14,24 +14,24 @@ import org.springframework.http.HttpMethod;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class ObjectUtils {
-    static private final ObjectMapper mapper;
+public class JsonUtils {
+    private static final ObjectMapper MAPPER;
 
     static {
-        mapper = new ObjectMapper();
-        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        mapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        mapper.registerModule(new JavaTimeModule());
+        MAPPER = new ObjectMapper();
+        MAPPER.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        MAPPER.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        MAPPER.enable(SerializationFeature.INDENT_OUTPUT);
+        MAPPER.setSerializationInclusion(JsonInclude.Include.ALWAYS);
+        MAPPER.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        MAPPER.registerModule(new JavaTimeModule());
 
     }
 
     public static String writeValueAsString(Object value) {
         try {
-            return mapper.writeValueAsString(value);
+            return MAPPER.writeValueAsString(value);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -54,7 +54,7 @@ public class ObjectUtils {
 
     public static <T> T readValue(String str, TypeReference<T> tr) {
         try {
-            return mapper.readValue(str, tr);
+            return MAPPER.readValue(str, tr);
         } catch (Exception e) {
             AppLogManager.error(e);
         }
@@ -64,7 +64,7 @@ public class ObjectUtils {
 
     public static String writerWithDefaultPrettyPrinter(Object value) {
         try {
-            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(value);
+            return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(value);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -73,8 +73,8 @@ public class ObjectUtils {
 
     public static String writeValueAsSingleLineString(Object value) {
         try {
-            mapper.disable(SerializationFeature.INDENT_OUTPUT);
-            return mapper.writeValueAsString(value);
+            MAPPER.disable(SerializationFeature.INDENT_OUTPUT);
+            return MAPPER.writeValueAsString(value);
         } catch (JsonProcessingException e) {
             // AppLogManager.error(e);
         }
@@ -90,7 +90,7 @@ public class ObjectUtils {
                 .append(" ")
                 .append(url).append("]")
                 .append("[Body] : [")
-                .append(ObjectUtils.writeValueAsString(request))
+                .append(JsonUtils.writeValueAsString(request))
                 .append("]\n");
         return stringBuilder;
     }
@@ -104,7 +104,7 @@ public class ObjectUtils {
                 .append(" ")
                 .append(url).append("]\n")
                 .append("[Body] : [")
-                .append(ObjectUtils.writeValueAsString(request))
+                .append(JsonUtils.writeValueAsString(request))
                 .append("]\n");
         return sb;
     }

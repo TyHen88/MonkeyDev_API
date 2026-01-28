@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,18 +39,31 @@ public class CustomJwtAuthenticationConverter implements Converter<Jwt, Abstract
         AbstractAuthenticationToken token = jwtAuthenticationConverter.convert(jwt);
         Collection<GrantedAuthority> authorities = token.getAuthorities();
 
-        // Extract role from JWT and add as ROLE_ authority
-        String role = jwt.getClaimAsString("role");
-        if (role != null && !role.isBlank()) {
-            // Add ROLE_ prefix for Spring Security role-based authorization
-            SimpleGrantedAuthority roleAuthority = new SimpleGrantedAuthority("ROLE_" + role.toUpperCase());
+        // Extract roles from JWT and add ROLE_ authorities
+        List<String> roles = jwt.getClaimAsStringList("roles");
+        if (roles == null || roles.isEmpty()) {
+            String role = jwt.getClaimAsString("role");
+            roles = role != null && !role.isBlank() ? List.of(role) : List.of();
+        }
 
-            // Combine scope authorities (if any) with role authority
-            // Note: Scope authorities will have "SCOPE_" prefix from JwtGrantedAuthoritiesConverter
-            // Role authorities have "ROLE_" prefix and are separate from scopes
-            authorities = Stream.concat(
-                    authorities.stream(),
-                    Stream.of(roleAuthority)).collect(Collectors.toList());
+        if (!roles.isEmpty()) {
+            List<GrantedAuthority> roleAuthorities = roles.stream()
+                    .filter(r -> r != null && !r.isBlank())
+                    .map(r -> new SimpleGrantedAuthority("ROLE_" + r.toUpperCase()))
+                    .collect(Collectors.toList());
+            authorities = Stream.concat(authorities.stream(), roleAuthorities.stream())
+                    .collect(Collectors.toList());
+        }
+
+        // Extract permissions and add as authorities (no prefix)
+        List<String> permissions = jwt.getClaimAsStringList("permissions");
+        if (permissions != null && !permissions.isEmpty()) {
+            List<GrantedAuthority> permissionAuthorities = permissions.stream()
+                    .filter(p -> p != null && !p.isBlank())
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList());
+            authorities = Stream.concat(authorities.stream(), permissionAuthorities.stream())
+                    .collect(Collectors.toList());
         }
 
         // Extract username (or fallback to sub)

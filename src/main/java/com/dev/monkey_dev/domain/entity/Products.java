@@ -54,7 +54,7 @@ public class Products extends BaseEntity {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "price", nullable = false, precision = 10, scale = 2)
@@ -63,7 +63,7 @@ public class Products extends BaseEntity {
     @Column(name = "sku", length = 100)
     private String sku;
 
-    @Column(name = "image_url", nullable = false)
+    @Column(name = "image_url", nullable = false, columnDefinition = "TEXT")
     private String imageUrl;
 
     @Column(name = "currency", nullable = false, length = 3)

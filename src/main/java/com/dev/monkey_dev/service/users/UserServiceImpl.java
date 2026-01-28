@@ -1,18 +1,22 @@
 package com.dev.monkey_dev.service.users;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dev.monkey_dev.common.api.StatusCode;
 import com.dev.monkey_dev.domain.entity.Address;
 import com.dev.monkey_dev.domain.entity.Users;
 import com.dev.monkey_dev.domain.respository.AddressRepository;
+import com.dev.monkey_dev.domain.respository.RoleRepository;
 import com.dev.monkey_dev.domain.respository.UserRepository;
 import com.dev.monkey_dev.dto.mapper.UserMapper;
 import com.dev.monkey_dev.dto.request.CriteriaFilter;
@@ -30,9 +34,10 @@ public class UserServiceImpl implements IUserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final AddressRepository addressRepository;
+    private final RoleRepository roleRepository;
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public UserResponseDto createUser(UserRequestDto userRequestDto) {
         if (userRepository.findByEmail(userRequestDto.getEmail()).isPresent()) {
             throw new BusinessException(StatusCode.USER_ID_ALREADY_EXISTS);
@@ -41,6 +46,11 @@ public class UserServiceImpl implements IUserService {
             throw new BusinessException(StatusCode.USER_ID_ALREADY_EXISTS);
         }
         Users user = userMapper.toUserEntity(userRequestDto);
+        var roles = roleRepository.findAllByNameIn(Set.of("USER"));
+        if (roles.isEmpty()) {
+            throw new BusinessException(StatusCode.BAD_REQUEST, "Default role not configured");
+        }
+        user.setRoles(roles.stream().collect(Collectors.toSet()));
         Users savedUser = userRepository.save(user);
         return userMapper.toUserResponseDto(savedUser);
     }
@@ -57,7 +67,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public UserResponseDto getUserByEmailOrUsername(String email, String username) {
         if (email == null && username == null) {
             throw new BusinessException(StatusCode.EMAIL_REQUIRED);
@@ -68,7 +78,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public UserResponseDto updateUser(UserRequestDto userRequestDto) {
         Long id = AuthHelper.getUserId();
         var user = userRepository.findUserById(id).orElseThrow(() -> new BusinessException(StatusCode.USER_NOT_FOUND));
@@ -95,7 +105,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void updateUserStatus(Long id, Boolean isActive) {
         var user = userRepository.findById(id).orElseThrow(() -> new BusinessException(StatusCode.USER_NOT_FOUND));
         if (isActive != null && isActive) {
@@ -109,7 +119,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public Page<UserResponseDto> getAllUsers(Boolean isActive, CriteriaFilter criteriaFilter) {
         // Use default sort by createdAt descending if no sort is specified
         Pageable pageable = criteriaFilter != null

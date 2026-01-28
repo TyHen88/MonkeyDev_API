@@ -1,10 +1,10 @@
 package com.dev.monkey_dev.service.auth;
 
 import com.dev.monkey_dev.common.api.StatusCode;
+import com.dev.monkey_dev.domain.respository.RoleRepository;
 import com.dev.monkey_dev.domain.respository.UserRepository;
 import com.dev.monkey_dev.domain.entity.Users;
 import com.dev.monkey_dev.enums.AuthProvider;
-import com.dev.monkey_dev.enums.Roles;
 import com.dev.monkey_dev.exception.BusinessException;
 import com.dev.monkey_dev.payload.auth.GoogleOAuth2UserInfo;
 import com.dev.monkey_dev.payload.auth.OAuth2UserInfo;
@@ -30,6 +30,7 @@ import java.util.Optional;
 public class CustomOAuth2UserService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
     /**
      * Simulates the loading of a user, taking registrationId and oauth2 user
@@ -91,7 +92,11 @@ public class CustomOAuth2UserService {
 
         user.setUsername(oAuth2UserInfo.getEmail().split("@")[0].toLowerCase());
         user.setProfileImageUrl(oAuth2UserInfo.getImageUrl());
-        user.setRole(Roles.USER);
+        var roles = roleRepository.findAllByNameIn(java.util.Set.of("USER"));
+        if (roles.isEmpty()) {
+            throw new BusinessException(StatusCode.BAD_REQUEST, "Default role not configured");
+        }
+        user.setRoles(new java.util.HashSet<>(roles));
         user.activate();
 
         // For OAuth2 users, we don't set a password as they authenticate through the

@@ -23,6 +23,8 @@ public class UserResponseDto {
     private String createdAt;
     private String updatedAt;
     private String role;
+    private List<String> roles;
+    private List<String> permissions;
     private String profileImageUrl;
     private String authProvider;
     private List<AddressResponseDto> addresses;

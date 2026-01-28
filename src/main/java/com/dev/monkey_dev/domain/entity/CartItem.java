@@ -43,6 +43,6 @@ public class CartItem extends BaseEntity {
     @Column(name = "quantity", nullable = false)
     private Integer quantity; // e.g. 1
 
-    @Column(name = "price_at_add", nullable = false)
-    private Double priceAtAdd; // snapshot of the price at the time of addition
+    @Column(name = "price_at_add", nullable = false, precision = 10, scale = 2)
+    private java.math.BigDecimal priceAtAdd; // snapshot of the price at the time of addition
 }

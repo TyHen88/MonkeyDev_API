@@ -3,7 +3,7 @@ package com.dev.monkey_dev.config;
 import com.dev.monkey_dev.common.api.ApiResponse;
 import com.dev.monkey_dev.common.api.ApiStatus;
 import com.dev.monkey_dev.common.api.StatusCode;
-import com.dev.monkey_dev.util.ObjectUtils;
+import com.dev.monkey_dev.common.serialization.JsonUtils;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,7 +31,7 @@ public class AccessDeniedHandler implements org.springframework.security.web.acc
             ApiStatus apiStatus = new ApiStatus(StatusCode.FORBIDDEN);
             var apiResponse = new ApiResponse<Object>(apiStatus.getMessage(), apiStatus.getCode(),
                     LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), null);
-            res.getBody().write(ObjectUtils.writeValueAsString(apiResponse).getBytes());
+            res.getBody().write(JsonUtils.writeValueAsString(apiResponse).getBytes());
         }
     }
 }

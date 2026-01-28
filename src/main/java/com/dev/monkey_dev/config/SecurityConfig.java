@@ -19,6 +19,7 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,6 +33,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 @ConditionalOnProperty(prefix = "rsa", name = "private-key")
 public class SecurityConfig {
@@ -74,7 +76,11 @@ public class SecurityConfig {
                                                                 "/api/wb/v1/auth/login",
                                                                 "/api/wb/v1/auth/refresh",
                                                                 "/api/wb/v1/admin/users/register",
+                                                                "/api/wb/v1/auth/generate-password",
+                                                                "/api/wb/v1/auth/forgot-password",
+                                                                "/api/wb/v1/auth/reset-password",
                                                                 "/api/wb/v1/auth/encrypt",
+                                                                "/api/wb/v1/payments/payway/return",
                                                                 "/api/wb/v1/password/**",
                                                                 "/api/v1/auth/**",
                                                                 "/api/v1/image/**",

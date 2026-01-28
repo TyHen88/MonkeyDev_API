@@ -1,23 +1,22 @@
 package com.dev.monkey_dev.service.seller;
 
 import com.dev.monkey_dev.dto.request.CriteriaFilter;
-import com.dev.monkey_dev.dto.request.ProductResponseDto;
 import com.dev.monkey_dev.dto.request.SellerProfileRequestDto;
 import com.dev.monkey_dev.dto.request.SellerProfileUpdateRequestDto;
 import com.dev.monkey_dev.dto.response.SellerProfileResponseDto;
 import com.dev.monkey_dev.domain.entity.SellerProfile;
 import com.dev.monkey_dev.domain.entity.Users;
+import com.dev.monkey_dev.domain.respository.RoleRepository;
 import com.dev.monkey_dev.domain.respository.SellerProfileRepository;
 import com.dev.monkey_dev.domain.respository.UserRepository;
-import com.dev.monkey_dev.enums.Roles;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -27,28 +26,25 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
 public class SellerProfileServiceImpl implements SellerProfileService {
 
     private final SellerProfileRepository sellerProfileRepository;
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public SellerProfileResponseDto createSellerProfile(Long userId, SellerProfileRequestDto requestDto) {
         log.info("Creating seller profile for user ID: {}", userId);
 
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
-        System.err.println("User role:" + user.getRole());
 
         if (sellerProfileRepository.existsByUser(user)) {
             throw new RuntimeException("Seller profile already exists for user: " + user.getUsername());
         }
 
-        if (user.getRole() != Roles.SELLER) {
-            user.setRole(Roles.SELLER);
-            userRepository.save(user);
-        }
+        ensureUserRole(user, "SELLER");
 
         SellerProfile sellerProfile = SellerProfile.builder()
                 .user(user)
@@ -77,7 +73,7 @@ public class SellerProfileServiceImpl implements SellerProfileService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public SellerProfileResponseDto getSellerProfileById(Long id) {
         log.info("Fetching seller profile by ID: {}", id);
 
@@ -88,7 +84,7 @@ public class SellerProfileServiceImpl implements SellerProfileService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public SellerProfileResponseDto getSellerProfileByUserId(Long userId) {
         log.info("Fetching seller profile by user ID: {}", userId);
 
@@ -99,6 +95,7 @@ public class SellerProfileServiceImpl implements SellerProfileService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public SellerProfileResponseDto updateSellerProfile(Long userId, SellerProfileUpdateRequestDto requestDto) {
         log.info("Updating seller profile for user ID: {}", userId);
 
@@ -133,6 +130,7 @@ public class SellerProfileServiceImpl implements SellerProfileService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteSellerProfile(Long userId) {
         log.info("Deactivating seller profile for user ID: {}", userId);
 
@@ -143,15 +141,14 @@ public class SellerProfileServiceImpl implements SellerProfileService {
         sellerProfileRepository.save(sellerProfile);
 
         Users user = sellerProfile.getUser();
-        if (user.getRole() == Roles.SELLER) {
-            user.setRole(Roles.USER);
-            userRepository.save(user);
-        }
+        user.getRoles().removeIf(role -> "SELLER".equals(role.getName()));
+        ensureUserRole(user, "USER");
 
         log.info("Successfully deactivated seller profile for user ID: {}", userId);
     }
 
     @Override
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public Page<SellerProfileResponseDto> getAllSellerProfiles(Boolean isActive, Boolean isVerified,
             CriteriaFilter criteriaFilter) {
         Page<SellerProfile> sellerProfiles = sellerProfileRepository.findAllSellerProfilesWithFilters(
@@ -167,6 +164,7 @@ public class SellerProfileServiceImpl implements SellerProfileService {
     }
 
     @Override
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public Page<SellerProfileResponseDto> getVerifiedSellers(CriteriaFilter criteriaFilter) {
         Pageable pageable = criteriaFilter.toPageable("sellerRating", Sort.Direction.DESC);
         Page<SellerProfile> sellerProfiles = sellerProfileRepository.findAllSellerProfilesWithFilters(
@@ -181,6 +179,7 @@ public class SellerProfileServiceImpl implements SellerProfileService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public SellerProfileResponseDto verifySeller(Long sellerProfileId) {
         log.info("Verifying seller profile with ID: {}", sellerProfileId);
 
@@ -196,6 +195,7 @@ public class SellerProfileServiceImpl implements SellerProfileService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public SellerProfileResponseDto updateSellerRating(Long sellerProfileId, BigDecimal newRating, Long totalReviews) {
         log.info("Updating seller rating for profile ID: {} - new rating: {}, total reviews: {}",
                 sellerProfileId, newRating, totalReviews);
@@ -212,6 +212,7 @@ public class SellerProfileServiceImpl implements SellerProfileService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void incrementSellerSales(Long sellerProfileId) {
         log.info("Incrementing sales for seller profile ID: {}", sellerProfileId);
 
@@ -222,6 +223,15 @@ public class SellerProfileServiceImpl implements SellerProfileService {
         sellerProfileRepository.save(sellerProfile);
 
         log.info("Successfully incremented sales for seller profile ID: {}", sellerProfileId);
+    }
+
+    private void ensureUserRole(Users user, String roleName) {
+        var role = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new RuntimeException("Role not found: " + roleName));
+        if (user.getRoles().stream().noneMatch(r -> r.getName().equals(roleName))) {
+            user.getRoles().add(role);
+            userRepository.save(user);
+        }
     }
 
     private SellerProfileResponseDto mapToResponseDto(SellerProfile sellerProfile) {

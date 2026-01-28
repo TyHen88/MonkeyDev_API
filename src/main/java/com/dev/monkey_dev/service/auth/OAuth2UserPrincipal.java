@@ -7,7 +7,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.Map;
 
 @Getter
@@ -27,7 +29,17 @@ public class OAuth2UserPrincipal implements OAuth2User {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+        Set<GrantedAuthority> authorities = new HashSet<>();
+        if (user.getRoles() != null) {
+            authorities.addAll(user.getRoles().stream()
+                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
+                    .collect(Collectors.toSet()));
+            authorities.addAll(user.getRoles().stream()
+                    .flatMap(role -> role.getPermissions().stream())
+                    .map(permission -> new SimpleGrantedAuthority(permission.getName()))
+                    .collect(Collectors.toSet()));
+        }
+        return authorities;
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.dev.monkey_dev.logging;
 
-import com.dev.monkey_dev.util.ObjectUtils;
+import com.dev.monkey_dev.common.serialization.JsonUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -68,7 +68,7 @@ public class LoggingServiceImpl implements ILoggingService {
 
         builder.append("\n========== REQUEST ==========")
                 .append("\nMethod: ").append(httpServletRequest.getMethod())
-                .append("\nURI: ").append(httpServletRequest.getRequestURI());
+                .append("\nURL: ").append(httpServletRequest.getRequestURI());
 
         String queryString = httpServletRequest.getQueryString();
         if (queryString != null && !queryString.isEmpty()) {
@@ -85,7 +85,7 @@ public class LoggingServiceImpl implements ILoggingService {
 
         if (body != null) {
             builder.append("\nBody: ")
-                    .append(ObjectUtils.writerWithDefaultPrettyPrinter(body));
+                    .append(JsonUtils.writerWithDefaultPrettyPrinter(body));
         }
 
         builder.append("\n=============================\n");
@@ -110,7 +110,7 @@ public class LoggingServiceImpl implements ILoggingService {
 
         if (body != null) {
             builder.append("\nBody: ")
-                    .append(ObjectUtils.writeValueAsSingleLineString(body));
+                    .append(JsonUtils.writeValueAsSingleLineString(body));
         }
 
         builder.append("\n=============================\n");

@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
-import com.dev.monkey_dev.util.ObjectUtils;
+import com.dev.monkey_dev.common.serialization.JsonUtils;
 
 /**
  * Service for logging HTTP requests and responses with appropriate log levels
@@ -55,7 +55,7 @@ public class MonkeyDevLoggingService extends LoggingServiceImpl {
             Object body) {
         // String logMessage = handleLoggingResponse(httpServletRequest,
         // httpServletResponse, body);
-        StringBuilder logMessage = ObjectUtils.logAfterResponse(httpServletRequest.getRequestURI(),
+        StringBuilder logMessage = JsonUtils.logAfterResponse(httpServletRequest.getRequestURI(),
                 HttpMethod.valueOf(httpServletRequest.getMethod()), body).append("\n");
         log.info(logMessage.toString().trim());
     }
@@ -73,7 +73,7 @@ public class MonkeyDevLoggingService extends LoggingServiceImpl {
         if (log.isDebugEnabled()) {
             // String logMessage = handleLoggingResponse(httpServletRequest,
             // httpServletResponse, body);
-            StringBuilder logMessage = ObjectUtils.logBeforeRequest(url, httpMethod, body).append("\n");
+            StringBuilder logMessage = JsonUtils.logBeforeRequest(url, httpMethod, body).append("\n");
             log.debug(logMessage.toString().trim());
         }
     }

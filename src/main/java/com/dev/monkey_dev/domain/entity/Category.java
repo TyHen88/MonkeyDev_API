@@ -35,10 +35,10 @@ public class Category extends BaseEntity {
     @Column(name = "slug", nullable = false)
     private String slug;
 
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "image_url", nullable = false)
+    @Column(name = "image_url", nullable = false, columnDefinition = "TEXT")
     private String imageUrl;
 
     @Column(name = "is_active", nullable = false)

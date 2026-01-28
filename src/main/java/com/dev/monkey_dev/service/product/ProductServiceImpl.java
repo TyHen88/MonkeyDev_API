@@ -3,10 +3,12 @@ package com.dev.monkey_dev.service.product;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.math.BigDecimal;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Sort;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -49,7 +51,7 @@ public class ProductServiceImpl implements IProductService {
        private static final String CATEGORY_NOT_FOUND = "One or more categories not found";
        private static final String CATEGORIES_REQUIRED = "At least one category is required";
 
-       @Transactional
+       @Transactional(rollbackFor = Exception.class)
        public void createProduct(ProductCreateRequestDto productCreateRequestDto) {
               try {
                      // Validate request
@@ -117,8 +119,9 @@ public class ProductServiceImpl implements IProductService {
                                    ProductVariation productVariation = new ProductVariation();
                                    productVariation.setName(variation.name());
                                    productVariation.setValue(variation.value() == null ? "" : variation.value());
-                                   productVariation.setPriceAdjustment(variation.priceAdjustment() == null ? 0.0
-                                                 : variation.priceAdjustment().doubleValue());
+                                   productVariation.setPriceAdjustment(variation.priceAdjustment() == null
+                                                 ? BigDecimal.ZERO
+                                                 : variation.priceAdjustment());
                                    productVariation.setSku(variation.sku() == null ? "" : variation.sku());
                                    productVariation.setStockQuantity(
                                                  variation.stockQuantity() == null ? 0
@@ -140,7 +143,7 @@ public class ProductServiceImpl implements IProductService {
               }
        }
 
-       @Transactional
+       @Transactional(rollbackFor = Exception.class)
        public void updateProduct(Long productId, ProductUpdateRequestDto productUpdateRequestDto) {
               try {
                      // Validate product ID
@@ -195,7 +198,7 @@ public class ProductServiceImpl implements IProductService {
               }
        }
 
-       @Transactional(readOnly = true)
+       @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
        public ProductResponseDto getProductById(Long productId) {
               try {
                      // Validate product ID
@@ -224,7 +227,7 @@ public class ProductServiceImpl implements IProductService {
               }
        }
 
-       @Transactional(readOnly = true)
+       @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
        public Page<ProductResponseDto> getAllProducts(String categorySlug, FilterProductCateType filterProductCateType,
                      CriteriaFilter criteriaFilter) {
               try {
@@ -256,7 +259,7 @@ public class ProductServiceImpl implements IProductService {
               }
        }
 
-       @Transactional
+       @Transactional(rollbackFor = Exception.class)
        public void deleteProduct(Long productId) {
               try {
                      // Validate product ID
@@ -281,7 +284,7 @@ public class ProductServiceImpl implements IProductService {
               }
        }
 
-       @Transactional(readOnly = true)
+       @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
        public ProductResponseDto getProductBySlug(String slug) {
               try {
                      // Validate slug

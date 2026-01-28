@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import com.dev.monkey_dev.enums.AuthProvider;
-import com.dev.monkey_dev.enums.Roles;
 import com.dev.monkey_dev.dto.request.UserRequestDto;
 import com.dev.monkey_dev.dto.request.UserAdminRequestDto;
 import com.dev.monkey_dev.dto.response.AddressResponseDto;
@@ -42,26 +41,13 @@ public class UserMapper {
     }
 
     /**
-     * Maps a UserAdminRequestDto to a Users entity with role support.
-     * Returns null if the input is null.
+     * Maps a UserAdminRequestDto to a Users entity without role assignment.
+     * Role assignment is handled in the service layer.
      */
     public Users toUserEntity(UserAdminRequestDto userAdminRequestDto) {
         if (userAdminRequestDto == null) {
             return null;
         }
-
-        // Parse role from string, default to USER if not provided or invalid
-        Roles role = Roles.USER;
-        if (userAdminRequestDto.getRole() != null && !userAdminRequestDto.getRole().isBlank()) {
-            try {
-                role = Roles.valueOf(userAdminRequestDto.getRole().toUpperCase());
-            } catch (IllegalArgumentException e) {
-                // Invalid role, default to USER
-                role = Roles.USER;
-            }
-        }
-
-        // Default active to true if not provided
         Boolean active = userAdminRequestDto.getActive() != null
                 ? userAdminRequestDto.getActive()
                 : true;
@@ -69,7 +55,6 @@ public class UserMapper {
         return Users.builder()
                 .fullName(userAdminRequestDto.getFullName())
                 .username(userAdminRequestDto.getUsername())
-                .role(role)
                 .active(active)
                 .build();
     }
@@ -111,9 +96,17 @@ public class UserMapper {
                 .updatedAt(user.getUpdatedAt() == null
                         ? LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                         : user.getUpdatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-                .role(user.getRole().name())
+                .role(primaryRole(user))
+                .roles(user.getRoles() == null ? List.of() : user.getRoles().stream()
+                        .map(r -> r.getName())
+                        .collect(Collectors.toList()))
+                .permissions(user.getRoles() == null ? List.of() : user.getRoles().stream()
+                        .flatMap(r -> r.getPermissions().stream())
+                        .map(p -> p.getName())
+                        .distinct()
+                        .collect(Collectors.toList()))
                 .profileImageUrl(user.getProfileImageUrl())
-                .authProvider(user.getAuthProvider().name())
+                .authProvider(user.getAuthProvider() != null ? user.getAuthProvider().name() : null)
                 .build();
     }
 
@@ -137,13 +130,28 @@ public class UserMapper {
                 .updatedAt(user.getUpdatedAt() == null
                         ? LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                         : user.getUpdatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-                .role(user.getRole().name())
+                .role(primaryRole(user))
+                .roles(user.getRoles() == null ? List.of() : user.getRoles().stream()
+                        .map(r -> r.getName())
+                        .collect(Collectors.toList()))
+                .permissions(user.getRoles() == null ? List.of() : user.getRoles().stream()
+                        .flatMap(r -> r.getPermissions().stream())
+                        .map(p -> p.getName())
+                        .distinct()
+                        .collect(Collectors.toList()))
                 .profileImageUrl(user.getProfileImageUrl())
-                .authProvider(user.getAuthProvider().name())
+                .authProvider(user.getAuthProvider() != null ? user.getAuthProvider().name() : null)
                 .addresses(null == addresses ? new ArrayList<>()
                         : addresses.stream()
                                 .map(this::toAddressResponseDto)
                                 .collect(Collectors.toList()))
                 .build();
+    }
+
+    private String primaryRole(Users user) {
+        if (user.getRoles() == null || user.getRoles().isEmpty()) {
+            return null;
+        }
+        return user.getRoles().iterator().next().getName();
     }
 }

@@ -38,7 +38,7 @@ public class SavedPaymentMethod extends BaseEntity {
     private Users user;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
+    @Column(name = "type", nullable = false, length = 50)
     private PaymentMethod type;
 
     @Column(name = "last_four_digits", length = 4)

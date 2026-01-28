@@ -3,6 +3,7 @@ package com.dev.monkey_dev.service.auth;
 import com.dev.monkey_dev.config.JwtUtil;
 import com.dev.monkey_dev.domain.entity.SecurityUser;
 import com.dev.monkey_dev.domain.entity.Users;
+import com.dev.monkey_dev.domain.respository.UserRepository;
 import com.dev.monkey_dev.properties.OAuth2Properties;
 import com.dev.monkey_dev.support.GoogleOAuth2Client;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class OAuth2AuthService {
     private final GoogleOAuth2Client googleClient;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
     public String buildGoogleAuthorizationUrl() {
         return UriComponentsBuilder
@@ -51,7 +53,8 @@ public class OAuth2AuthService {
             OAuth2UserPrincipal principal = customOAuth2UserService.loadUser("google", userInfo);
             Users user = principal.getUser();
 
-            String jwt = jwtUtil.doGenerateToken(new SecurityUser(user));
+            Users tokenUser = userRepository.findWithRolesById(user.getId()).orElse(user);
+            String jwt = jwtUtil.doGenerateToken(new SecurityUser(tokenUser));
 
             return UriComponentsBuilder.fromUriString(props.getAuthorizedRedirectUrl())
                     .queryParam("token", jwt)

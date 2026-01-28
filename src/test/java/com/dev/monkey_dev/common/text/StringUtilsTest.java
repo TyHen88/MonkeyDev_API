@@ -1,4 +1,4 @@
-package com.dev.monkey_dev.util;
+package com.dev.monkey_dev.common.text;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

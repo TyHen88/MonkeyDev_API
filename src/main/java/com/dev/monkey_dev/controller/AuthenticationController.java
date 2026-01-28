@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import com.dev.monkey_dev.controller.base.BaseApiRestController;
 import com.dev.monkey_dev.payload.auth.LoginRequest;
 import com.dev.monkey_dev.payload.auth.RefreshTokenRequest;
+import com.dev.monkey_dev.payload.auth.ForgotPasswordRequest;
+import com.dev.monkey_dev.payload.auth.ResetPasswordRequest;
 import com.dev.monkey_dev.service.auth.AuthService;
-import com.dev.monkey_dev.util.PasswordUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -67,8 +68,27 @@ public class AuthenticationController extends BaseApiRestController {
     @PostMapping("/encrypt")
     public Object encryptPassword(@RequestBody @Valid String payload) throws Throwable {
         var passwordValid = payload.replace("\"", "");
-        var passwordEncrypted = PasswordUtils.encrypt(passwordValid);
+        var passwordEncrypted = authService.encryptPassword(passwordValid);
         return successMessage(passwordEncrypted);
+    }
+
+    @GetMapping("/generate-password")
+    public ResponseEntity<?> generatePassword(@RequestParam(value = "length", required = false) Integer length) {
+        int size = length != null ? length : 12;
+        String generated = authService.generatePassword(size);
+        return success(generated);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) throws Throwable {
+        String token = authService.forgotPassword(request.email());
+        return success(token);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody @Valid ResetPasswordRequest request) throws Throwable {
+        authService.resetPassword(request);
+        return successMessage("Password reset successfully");
     }
 
     @PatchMapping("/update-password")

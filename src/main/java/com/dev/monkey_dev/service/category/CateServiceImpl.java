@@ -2,6 +2,7 @@ package com.dev.monkey_dev.service.category;
 
 import java.util.List;
 
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,7 @@ public class CateServiceImpl implements ICategoryService {
     private final ProductRepository productRepository;
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public CategorySummaryDto createCategory(CategoryRequestDto categoryDto) {
         Category category = new Category();
         category.setName(categoryDto.name());
@@ -40,7 +41,7 @@ public class CateServiceImpl implements ICategoryService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<CategorySummaryDto> getAllCategories() {
         return categoryRepository.findAll().stream()
                 .map(this::toSummary)
@@ -52,7 +53,7 @@ public class CateServiceImpl implements ICategoryService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void deleteCategory(Long categoryId) {
         try {
             // Validate category ID
@@ -74,7 +75,7 @@ public class CateServiceImpl implements ICategoryService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public CategorySummaryDto getCategoryById(Long categoryId) {
         try {
             // Validate category ID
@@ -94,7 +95,7 @@ public class CateServiceImpl implements ICategoryService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void updateCategory(Long categoryId, CategoryRequestDto categoryDto) {
         try {
             // Validate category ID
@@ -122,7 +123,7 @@ public class CateServiceImpl implements ICategoryService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void removeProductFromCategory(Long categoryId, Long productId) {
         try {
             // Validate category ID
@@ -143,7 +144,7 @@ public class CateServiceImpl implements ICategoryService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void addProductToCategory(Long categoryId, Long productId) {
         try {
             // Validate category ID
@@ -163,7 +164,7 @@ public class CateServiceImpl implements ICategoryService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void bulkDeleteProductsFromCategory(Long categoryId, List<Long> productIds) {
         try {
             // Validate category ID
@@ -185,7 +186,7 @@ public class CateServiceImpl implements ICategoryService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void bulkAddProductsToCategory(Long categoryId, List<Long> productIds) {
         try {
             // Validate category ID
