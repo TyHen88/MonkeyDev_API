@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: monkeydev-api
+    name: ezcart-api
     env: java
     plan: free
     buildCommand: ./mvnw clean package

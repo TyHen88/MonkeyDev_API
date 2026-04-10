@@ -1,46 +1,5 @@
 -- Incremental changes to align existing databases with new schema
 
--- Roles & permissions
-CREATE TABLE IF NOT EXISTS roles (
-  id BIGSERIAL PRIMARY KEY,
-  name VARCHAR(50) NOT NULL UNIQUE,
-  description VARCHAR(255),
-  created_at TIMESTAMP NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP NOT NULL DEFAULT now(),
-  created_by BIGINT,
-  updated_by BIGINT
-);
-
-CREATE TABLE IF NOT EXISTS permissions (
-  id BIGSERIAL PRIMARY KEY,
-  name VARCHAR(100) NOT NULL UNIQUE,
-  description VARCHAR(255),
-  created_at TIMESTAMP NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP NOT NULL DEFAULT now(),
-  created_by BIGINT,
-  updated_by BIGINT
-);
-
-CREATE TABLE IF NOT EXISTS user_roles (
-  user_id BIGINT NOT NULL,
-  role_id BIGINT NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP NOT NULL DEFAULT now(),
-  CONSTRAINT pk_user_roles PRIMARY KEY (user_id, role_id),
-  CONSTRAINT fk_user_roles_user_id FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-  CONSTRAINT fk_user_roles_role_id FOREIGN KEY (role_id) REFERENCES roles (id) ON DELETE RESTRICT
-);
-
-CREATE TABLE IF NOT EXISTS role_permissions (
-  role_id BIGINT NOT NULL,
-  permission_id BIGINT NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP NOT NULL DEFAULT now(),
-  CONSTRAINT pk_role_permissions PRIMARY KEY (role_id, permission_id),
-  CONSTRAINT fk_role_permissions_role_id FOREIGN KEY (role_id) REFERENCES roles (id) ON DELETE CASCADE,
-  CONSTRAINT fk_role_permissions_permission_id FOREIGN KEY (permission_id) REFERENCES permissions (id) ON DELETE RESTRICT
-);
-
 -- Audit logs
 CREATE TABLE IF NOT EXISTS audit_logs (
   id BIGSERIAL PRIMARY KEY,
@@ -59,21 +18,6 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   created_by BIGINT,
   updated_by BIGINT,
   CONSTRAINT fk_audit_logs_actor_user_id FOREIGN KEY (actor_user_id) REFERENCES users (id) ON DELETE SET NULL
-);
-
--- Refresh tokens
-CREATE TABLE IF NOT EXISTS refresh_tokens (
-  id BIGSERIAL PRIMARY KEY,
-  user_id BIGINT NOT NULL,
-  token VARCHAR(500) NOT NULL,
-  expires_at TIMESTAMPTZ NOT NULL,
-  is_revoked BOOLEAN NOT NULL DEFAULT false,
-  created_at TIMESTAMP NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP NOT NULL DEFAULT now(),
-  created_by BIGINT,
-  updated_by BIGINT,
-  CONSTRAINT uk_refresh_tokens_token UNIQUE (token),
-  CONSTRAINT fk_refresh_tokens_user_id FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 -- Users adjustments

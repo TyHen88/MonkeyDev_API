@@ -15,7 +15,7 @@ spring:
     allow-bean-definition-overriding: true
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
+    url: jdbc:postgresql://localhost:5432/ecommerce_db
     username: postgres
     password: psql@ty8080
     driver-class-name: org.postgresql.Driver
@@ -85,7 +85,7 @@ spring:
 
 # JWT Configuration (merged)
 jwt:
-  issuer: monkey-dev
+  issuer: ezcart-api
   secret: mySecretKey
   expiration: 86400000      # 24 hours in milliseconds (access token)
   refresh-expiration: 604800000 # 7 days in milliseconds (refresh token)

@@ -1,0 +1,105 @@
+package com.ezcart.api.controller.admin;
+
+import com.ezcart.api.controller.base.BaseApiRestController;
+import com.ezcart.api.common.api.ApiResponse;
+import com.ezcart.api.dto.request.CriteriaFilter;
+import com.ezcart.api.dto.request.UserAdminRequestDto;
+import com.ezcart.api.dto.response.UserResponseDto;
+import com.ezcart.api.common.PaginatedResponse;
+
+import java.util.Map;
+
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import com.ezcart.api.service.auth.AuthService;
+import com.ezcart.api.service.users.IUserService;
+import com.ezcart.api.common.api.StatusCode;
+import jakarta.validation.Valid;
+
+@RestController
+@RequestMapping("/api/wb/v1/admin/users")
+@RequiredArgsConstructor
+@Tag(name = "Admin Role", description = "Admin Role API")
+public class UserAdminController extends BaseApiRestController {
+    private final AuthService authService;
+    private final IUserService userService;
+
+    /**
+     * Get all users with filtering, pagination, and sorting.
+     * 
+     * @param isActive filter by active status (optional)
+     * @param search   search keyword for fullName, username, or email (optional)
+     * @param sort     sort field and direction, e.g., "createdAt,desc" or
+     *                 "username,asc" (optional)
+     * @param page     page number (0-based, default: 0)
+     * @param size     page size (default: 10)
+     * @return paginated list of users
+     */
+    @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN_MANAGE')")
+    @Operation(summary = "Get all users with filtering, pagination, and sorting", description = "Get all users with filtering, pagination, and sorting")
+    public ResponseEntity<ApiResponse<Object>> getAllUsers(
+            @RequestParam(value = "isActive", required = false) Boolean isActive,
+            @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "sort", required = false) String sort,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "size", required = false) Integer size) {
+
+        // Build CriteriaFilter from query parameters
+        CriteriaFilter criteriaFilter = CriteriaFilter.builder()
+                .search(search)
+                .sort(sort)
+                .page(page)
+                .size(size)
+                .build();
+
+        // Get paginated users
+        Page<UserResponseDto> usersPage = userService.getAllUsers(isActive, criteriaFilter);
+
+        // Build response with data and pagination using utility component
+        Map<String, Object> response = PaginatedResponse.of(usersPage);
+
+        return success(response);
+    }
+
+    /**
+     * Create a new user with role assignment (Admin only).
+     * 
+     * @param userAdminRequestDto user data with role
+     * @return created user
+     */
+    @PostMapping("/register")
+    @Operation(summary = "Create a new user with role assignment (Admin only)", description = "Create a new user with role assignment (Admin only)")
+    @PreAuthorize("hasAuthority('ADMIN_MANAGE')")
+    public ResponseEntity<ApiResponse<Object>> createUser(@RequestBody @Valid UserAdminRequestDto userAdminRequestDto) {
+        try {
+            authService.registerUser(userAdminRequestDto);
+            return successMessage("User created successfully");
+        } catch (Throwable e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.error(StatusCode.BAD_REQUEST.getMessage(), StatusCode.BAD_REQUEST.getHttpStatus()));
+        }
+    }
+
+    /**
+     * Delete a user by ID.
+     * 
+     * @param id user ID
+     * @return success message
+     */
+    @Operation(summary = "true/false", description = "true: activate, false: deactivate")
+    @PutMapping("/update-status/{id}/{status}")
+    @PreAuthorize("hasAuthority('ADMIN_MANAGE')")
+    public ResponseEntity<ApiResponse<Object>> updateUserStatus(@PathVariable("id") Long id, @PathVariable("status") Boolean status) {
+        userService.updateUserStatus(id, status);
+        return successMessage("User status updated successfully");
+    }
+
+}
+

@@ -7,5 +7,5 @@ COPY . .
 RUN chmod +x gradlew
 RUN ./gradlew build
 
-# Run the JAR (replace with actual jar name or use build/libs/*.jar)
-CMD ["java", "-jar", "build/libs/MonkeyDev_API-0.0.1-SNAPSHOT.jar"]
+# Run the JAR produced by Gradle
+CMD ["java", "-jar", "build/libs/ezcart_api-0.0.1-SNAPSHOT.jar"]
